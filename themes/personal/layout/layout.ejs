@@ -11,13 +11,13 @@
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="<%= url_for('/') %>"><span class="brand-mark">✳</span><span><%= config.title %></span></a>
-      <nav class="site-nav" aria-label="主导航">
-        <a href="<%= url_for('/') %>">首页</a>
-        <a href="<%= url_for('/about/') %>">关于</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="<%= url_for('/') %>">Index</a>
+        <a href="<%= url_for('/about/') %>">About</a>
       </nav>
     </header>
     <main class="site-main"><%- body %></main>
-    <footer class="site-footer"><span>© <%= new Date().getFullYear() %> <%= config.author %></span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">邮箱</a></span></footer>
+    <footer class="site-footer"><span>© <%= new Date().getFullYear() %> · Signal archive</span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">Email</a></span></footer>
   </div>
 </body>
 </html>
