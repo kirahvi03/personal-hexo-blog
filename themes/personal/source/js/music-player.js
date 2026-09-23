@@ -87,6 +87,13 @@
 
   function setStatus(value) { status.textContent = value; }
 
+  function updateMinimizeButton() {
+    var minimized = root.classList.contains('is-minimized');
+    minimizeButton.textContent = minimized ? 'MAX' : 'MIN';
+    minimizeButton.setAttribute('aria-label', minimized ? 'Expand player' : 'Minimize player');
+    minimizeButton.setAttribute('title', minimized ? 'Expand player' : 'Minimize player');
+  }
+
   function saveAudioFile(file) {
     if (!window.PersonalArchiveStore) return Promise.resolve();
     var item = { id: Date.now() + '-' + Math.random().toString(16).slice(2), type: 'audio', name: file.name, blob: file, createdAt: Date.now() };
@@ -219,16 +226,19 @@
   ['dragleave', 'drop'].forEach(function (eventName) { dropzone.addEventListener(eventName, function (event) { event.preventDefault(); dropzone.classList.remove('is-dragging'); }); });
   dropzone.addEventListener('drop', function (event) { addFiles(event.dataTransfer.files); });
   window.addEventListener('beforeunload', function () { objectUrls.forEach(URL.revokeObjectURL); });
-  if (minimizeButton) minimizeButton.addEventListener('click', function (event) {
-    event.stopPropagation();
-    root.classList.toggle('is-minimized');
-    minimizeButton.textContent = root.classList.contains('is-minimized') ? '+' : '_';
-    minimizeButton.setAttribute('aria-label', root.classList.contains('is-minimized') ? 'Expand player' : 'Minimize player');
-    try { localStorage.setItem('personal-blog-player-minimized', String(root.classList.contains('is-minimized'))); } catch (error) { /* ignore */ }
-  });
+  if (minimizeButton) {
+    minimizeButton.addEventListener('pointerdown', function (event) { event.stopPropagation(); });
+    minimizeButton.addEventListener('click', function (event) {
+      event.stopPropagation();
+      root.classList.toggle('is-minimized');
+      updateMinimizeButton();
+      try { localStorage.setItem('personal-blog-player-minimized', String(root.classList.contains('is-minimized'))); } catch (error) { /* ignore */ }
+    });
+  }
   try {
-    if (localStorage.getItem('personal-blog-player-minimized') === 'true') { root.classList.add('is-minimized'); minimizeButton.textContent = '+'; }
+    if (localStorage.getItem('personal-blog-player-minimized') === 'true') root.classList.add('is-minimized');
   } catch (error) { /* ignore */ }
+  if (minimizeButton) updateMinimizeButton();
   if (window.PersonalArchiveStore) window.PersonalArchiveStore.getAll('audio').then(function (items) {
     items.forEach(addStoredTrack);
     renderList();
