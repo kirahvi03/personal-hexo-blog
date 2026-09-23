@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="<%= config.language || 'zh-CN' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= page.title ? page.title + ' · ' : '' %><%= config.title %></title>
+  <meta name="description" content="<%= page.description || config.description %>">
+  <link rel="stylesheet" href="<%= url_for('/css/main.css') %>">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="<%= url_for('/') %>"><span class="brand-mark">✳</span><span><%= config.title %></span></a>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="<%= url_for('/') %>">首页</a>
+        <a href="<%= url_for('/about/') %>">关于</a>
+      </nav>
+    </header>
+    <main class="site-main"><%- body %></main>
+    <footer class="site-footer"><span>© <%= new Date().getFullYear() %> <%= config.author %></span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">邮箱</a></span></footer>
+  </div>
+</body>
+</html>

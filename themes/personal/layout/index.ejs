@@ -1,26 +1,13 @@
 <div class="hero">
   <p class="eyebrow">PERSONAL NOTES</p>
-  <h1>你好，我是<br><span><%= config.author %></span>。</h1>
-  <p class="hero-copy"><%= config.subtitle %>。这里会慢慢放下我的文章、项目和生活片段。</p>
+  <h1>Hello, I am<br><span><%= config.author %></span>.</h1>
+  <p class="hero-copy"><%= config.subtitle %>. This is a place for articles, projects, and small observations.</p>
 </div>
-<section class="posts-section" aria-label="文章列表">
-  <div class="section-heading"><h2>最新文章</h2><span><%= site.posts.length %> 篇</span></div>
-  <% if (site.posts.length) { %>
-    <div class="post-list">
-      <% site.posts.each(function(post) { %>
-        <article class="post-card">
-          <div class="post-meta"><time><%= date(post.date, 'YYYY.MM.DD') %></time></div>
-          <h3><a href="<%= url_for(post.path) %>"><%= post.title %></a></h3>
-          <p><%= strip_html(post.excerpt || post.content).slice(0, 120) %></p>
-          <a class="read-more" href="<%= url_for(post.path) %>">阅读全文 →</a>
-        </article>
-      <% }) %>
-    </div>
-  <% } else { %>
-    <div class="empty-state">
-      <div class="empty-icon">✦</div>
-      <h3>这里还很安静</h3>
-      <p>第一篇文章正在路上。运行 <code>hexo new post "文章标题"</code> 开始写作。</p>
-    </div>
-  <% } %>
+<section class="posts-section" aria-label="Latest posts">
+  <div class="section-heading"><h2>Latest posts</h2><span>0 posts</span></div>
+  <div class="empty-state">
+    <div class="empty-icon">&#10022;</div>
+    <h3>It is quiet here for now</h3>
+    <p>Your first post is on its way. Run <code>hexo new post "Your title"</code> to start writing.</p>
+  </div>
 </section>
