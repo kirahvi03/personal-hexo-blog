@@ -24,6 +24,9 @@
   var dragHandle = root.querySelector('[data-player-drag-handle]');
   var dragState = null;
   var minimizeButton = root.querySelector('[data-player-minimize]');
+  var builtInTracks = [];
+
+  try { builtInTracks = JSON.parse(root.getAttribute('data-built-in-tracks') || '[]'); } catch (error) { builtInTracks = []; }
 
   audio.volume = Number(volume.value);
 
@@ -104,6 +107,11 @@
     var url = URL.createObjectURL(item.blob);
     objectUrls.push(url);
     tracks.push({ name: item.name, url: url, storedId: item.id });
+  }
+
+  function addBuiltInTrack(track) {
+    if (!track || !track.url || tracks.some(function (item) { return item.url === track.url; })) return;
+    tracks.push({ name: track.name, url: track.url, builtIn: true });
   }
 
   function renderList() {
@@ -239,6 +247,7 @@
     if (localStorage.getItem('personal-blog-player-minimized') === 'true') root.classList.add('is-minimized');
   } catch (error) { /* ignore */ }
   if (minimizeButton) updateMinimizeButton();
+  builtInTracks.forEach(addBuiltInTrack);
   if (window.PersonalArchiveStore) window.PersonalArchiveStore.getAll('audio').then(function (items) {
     items.forEach(addStoredTrack);
     renderList();
