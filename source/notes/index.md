@@ -1,8 +1,7 @@
 ---
-title: 札记
-layout: page
+title: NOTES
+layout: library
+library_type: notes
 ---
 
-这里会放下日常思考、阅读记录和灵感片段。
-
-目前还没有札记，之后可以通过 `hexo new post "札记标题"` 开始记录。
+Write directly into your personal archive. Notes are saved in this browser and remain available after refresh.

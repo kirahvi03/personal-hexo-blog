@@ -1,0 +1,11 @@
+<section class="archive-desk" data-archive-desk data-archive-type="<%= libraryType %>">
+  <div class="archive-desk-top"><div><p class="eyebrow">PERSONAL ARCHIVE / <%= String(libraryType).toUpperCase() %></p><h2>ARCHIVE DESK</h2></div><span class="archive-status" data-archive-status>READY</span></div>
+  <% if (libraryType === 'notes') { %>
+    <form class="archive-form archive-note-form" data-archive-note-form><label>NOTE TITLE<input name="title" type="text" maxlength="120" placeholder="Give this note a signal name" required></label><label>NOTE CONTENT<textarea name="text" rows="7" maxlength="10000" placeholder="Type directly into the archive..." required></textarea></label><button class="archive-submit" type="submit">+ SAVE NOTE</button></form>
+  <% } else if (libraryType === 'gallery') { %>
+    <div class="archive-upload-panel"><label class="archive-file-button" for="archive-image-input">+ IMPORT PHOTOS <small>JPG / PNG / GIF / WEBP</small></label><input id="archive-image-input" class="archive-file-input" data-archive-file-input type="file" accept="image/*" multiple><div class="archive-dropzone" data-archive-dropzone>DROP IMAGES HERE</div></div>
+  <% } else { %>
+    <div class="archive-upload-panel"><label class="archive-file-button" for="archive-audio-input">+ IMPORT AUDIO <small>MP3 / WAV / OGG / M4A</small></label><input id="archive-audio-input" class="archive-file-input" data-archive-file-input type="file" accept="audio/*" multiple><div class="archive-dropzone" data-archive-dropzone>DROP AUDIO HERE</div></div>
+  <% } %>
+  <div class="archive-list-head"><span>SAVED ITEMS</span><span data-archive-count>0 ITEMS</span></div><div class="archive-items" data-archive-items><p class="archive-empty">No saved items yet. Add something above.</p></div>
+</section>

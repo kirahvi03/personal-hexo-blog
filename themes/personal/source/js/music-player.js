@@ -23,6 +23,7 @@
   var playButton = root.querySelector('[data-player-action="toggle"]');
   var dragHandle = root.querySelector('[data-player-drag-handle]');
   var dragState = null;
+  var minimizeButton = root.querySelector('[data-player-minimize]');
 
   audio.volume = Number(volume.value);
 
@@ -86,6 +87,18 @@
 
   function setStatus(value) { status.textContent = value; }
 
+  function saveAudioFile(file) {
+    if (!window.PersonalArchiveStore) return Promise.resolve();
+    var item = { id: Date.now() + '-' + Math.random().toString(16).slice(2), type: 'audio', name: file.name, blob: file, createdAt: Date.now() };
+    return window.PersonalArchiveStore.put(item);
+  }
+
+  function addStoredTrack(item) {
+    var url = URL.createObjectURL(item.blob);
+    objectUrls.push(url);
+    tracks.push({ name: item.name, url: url, storedId: item.id });
+  }
+
   function renderList() {
     count.textContent = tracks.length + (tracks.length === 1 ? ' TRACK' : ' TRACKS');
     list.innerHTML = '';
@@ -118,6 +131,7 @@
       var url = URL.createObjectURL(file);
       objectUrls.push(url);
       tracks.push({ name: file.name, url: url });
+      saveAudioFile(file);
     });
     renderList();
     setStatus('FILES READY');
@@ -156,6 +170,13 @@
   }
 
   fileInput.addEventListener('change', function (event) { addFiles(event.target.files); fileInput.value = ''; });
+  window.addEventListener('personal-audio-added', function (event) {
+    if (!event.detail || tracks.some(function (track) { return track.name === event.detail.name; })) return;
+    addStoredTrack(event.detail);
+    renderList();
+    setStatus('ARCHIVE READY');
+    if (activeIndex === -1) loadTrack(0, false);
+  });
   root.querySelectorAll('[data-player-action]').forEach(function (button) {
     button.addEventListener('click', function () {
       var action = button.getAttribute('data-player-action');
@@ -198,6 +219,21 @@
   ['dragleave', 'drop'].forEach(function (eventName) { dropzone.addEventListener(eventName, function (event) { event.preventDefault(); dropzone.classList.remove('is-dragging'); }); });
   dropzone.addEventListener('drop', function (event) { addFiles(event.dataTransfer.files); });
   window.addEventListener('beforeunload', function () { objectUrls.forEach(URL.revokeObjectURL); });
+  if (minimizeButton) minimizeButton.addEventListener('click', function (event) {
+    event.stopPropagation();
+    root.classList.toggle('is-minimized');
+    minimizeButton.textContent = root.classList.contains('is-minimized') ? '+' : '_';
+    minimizeButton.setAttribute('aria-label', root.classList.contains('is-minimized') ? 'Expand player' : 'Minimize player');
+    try { localStorage.setItem('personal-blog-player-minimized', String(root.classList.contains('is-minimized'))); } catch (error) { /* ignore */ }
+  });
+  try {
+    if (localStorage.getItem('personal-blog-player-minimized') === 'true') { root.classList.add('is-minimized'); minimizeButton.textContent = '+'; }
+  } catch (error) { /* ignore */ }
+  if (window.PersonalArchiveStore) window.PersonalArchiveStore.getAll('audio').then(function (items) {
+    items.forEach(addStoredTrack);
+    renderList();
+    if (activeIndex === -1 && tracks.length) loadTrack(0, false);
+  }).catch(function () { /* archive storage may be unavailable */ });
   restorePosition();
   renderList();
 }());

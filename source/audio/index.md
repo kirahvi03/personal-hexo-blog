@@ -1,8 +1,7 @@
 ---
-title: 音频库
-layout: page
+title: AUDIO LIBRARY
+layout: library
+library_type: audio
 ---
 
-这里会收纳声音片段、音乐收藏和音频实验。
-
-页面右下角的播放器支持直接导入你电脑里的本地音频文件。
+Import sounds directly from this page. Saved audio is also available in the local player.
