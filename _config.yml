@@ -1,0 +1,19 @@
+# Hexo site configuration
+title: 你的名字
+subtitle: 记录、思考与分享
+description: 一个简洁的个人博客
+author: 你的名字
+language: zh-CN
+timezone: Asia/Shanghai
+
+url: https://example.com
+root: /
+permalink: :year/:month/:day/:title/
+permalink_defaults:
+
+theme: personal
+deploy:
+  type: ''
+
+skip_render:
+  - README.md

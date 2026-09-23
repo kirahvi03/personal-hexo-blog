@@ -1,0 +1,9 @@
+menu:
+  首页: /
+  关于: /about/
+
+social:
+  GitHub: https://github.com/
+  邮箱: mailto:hello@example.com
+
+accent: '#176b5b'
