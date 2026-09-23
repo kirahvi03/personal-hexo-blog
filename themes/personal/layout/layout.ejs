@@ -17,7 +17,9 @@
       </nav>
     </header>
     <main class="site-main"><%- body %></main>
+    <%- partial('_partial/music-player') %>
     <footer class="site-footer"><span>© <%= new Date().getFullYear() %> · Signal archive</span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">Email</a></span></footer>
   </div>
+  <script src="<%= url_for('/js/music-player.js') %>"></script>
 </body>
 </html>

@@ -1,0 +1,149 @@
+(function () {
+  'use strict';
+
+  var root = document.querySelector('[data-music-player]');
+  if (!root) return;
+
+  var audio = root.querySelector('[data-player-audio]');
+  var fileInput = root.querySelector('[data-player-input]');
+  var dropzone = root.querySelector('[data-player-dropzone]');
+  var list = root.querySelector('[data-player-list]');
+  var tracks = [];
+  var activeIndex = -1;
+  var objectUrls = [];
+
+  var status = root.querySelector('[data-player-status]');
+  var count = root.querySelector('[data-player-count]');
+  var title = root.querySelector('[data-player-title]');
+  var current = root.querySelector('[data-player-current]');
+  var duration = root.querySelector('[data-player-duration]');
+  var progress = root.querySelector('[data-player-progress]');
+  var volume = root.querySelector('[data-player-volume]');
+  var volumeValue = root.querySelector('[data-player-volume-value]');
+  var playButton = root.querySelector('[data-player-action="toggle"]');
+
+  audio.volume = Number(volume.value);
+
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds)) return '00:00';
+    var minutes = Math.floor(seconds / 60);
+    var remainder = Math.floor(seconds % 60);
+    return String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
+  }
+
+  function setStatus(value) { status.textContent = value; }
+
+  function renderList() {
+    count.textContent = tracks.length + (tracks.length === 1 ? ' TRACK' : ' TRACKS');
+    list.innerHTML = '';
+    if (!tracks.length) {
+      list.innerHTML = '<li class="playlist-empty">Your local tracks appear here.</li>';
+      return;
+    }
+    tracks.forEach(function (track, index) {
+      var item = document.createElement('li');
+      item.className = index === activeIndex ? 'is-active' : '';
+      item.innerHTML = '<button type="button" class="playlist-item" aria-label="Play ' + escapeHtml(track.name) + '"><span class="playlist-index">' + String(index + 1).padStart(2, '0') + '</span><span class="playlist-name">' + escapeHtml(track.name) + '</span><span class="playlist-state">' + (index === activeIndex ? '●' : '·') + '</span></button>';
+      item.querySelector('button').addEventListener('click', function () { loadTrack(index, true); });
+      list.appendChild(item);
+    });
+  }
+
+  function escapeHtml(value) {
+    return value.replace(/[&<>'"]/g, function (character) {
+      return {'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[character];
+    });
+  }
+
+  function addFiles(fileList) {
+    var files = Array.prototype.filter.call(fileList, function (file) { return file.type.indexOf('audio/') === 0; });
+    if (!files.length) {
+      setStatus('AUDIO ONLY');
+      return;
+    }
+    files.forEach(function (file) {
+      var url = URL.createObjectURL(file);
+      objectUrls.push(url);
+      tracks.push({ name: file.name, url: url });
+    });
+    renderList();
+    setStatus('FILES READY');
+    if (activeIndex === -1) loadTrack(0, false);
+  }
+
+  function loadTrack(index, autoplay) {
+    if (!tracks[index]) return;
+    activeIndex = index;
+    audio.src = tracks[index].url;
+    title.textContent = tracks[index].name.toUpperCase();
+    current.textContent = '00:00';
+    duration.textContent = '00:00';
+    progress.value = 0;
+    renderList();
+    setStatus('LOADED');
+    if (autoplay) audio.play().catch(function () { setStatus('CLICK PLAY'); });
+  }
+
+  function togglePlayback() {
+    if (!tracks.length) { setStatus('IMPORT AUDIO'); return; }
+    if (audio.paused) {
+      audio.play().then(function () { setStatus('PLAYING'); }).catch(function () { setStatus('CLICK PLAY'); });
+    } else {
+      audio.pause();
+      setStatus('PAUSED');
+    }
+  }
+
+  function step(direction) {
+    if (!tracks.length) return;
+    var next = activeIndex + direction;
+    if (next < 0) next = tracks.length - 1;
+    if (next >= tracks.length) next = 0;
+    loadTrack(next, true);
+  }
+
+  fileInput.addEventListener('change', function (event) { addFiles(event.target.files); fileInput.value = ''; });
+  root.querySelectorAll('[data-player-action]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var action = button.getAttribute('data-player-action');
+      if (action === 'toggle') togglePlayback();
+      if (action === 'previous') step(-1);
+      if (action === 'next') step(1);
+    });
+  });
+  root.querySelector('[data-player-clear]').addEventListener('click', function () {
+    audio.pause();
+    audio.removeAttribute('src');
+    objectUrls.forEach(URL.revokeObjectURL);
+    objectUrls = [];
+    tracks = [];
+    activeIndex = -1;
+    title.textContent = 'NO AUDIO LOADED';
+    setStatus('READY');
+    current.textContent = '00:00';
+    duration.textContent = '00:00';
+    progress.value = 0;
+    playButton.textContent = '▶';
+    renderList();
+  });
+  volume.addEventListener('input', function () {
+    audio.volume = Number(volume.value);
+    volumeValue.textContent = String(Math.round(Number(volume.value) * 100)).padStart(2, '0');
+  });
+  progress.addEventListener('input', function () {
+    if (audio.duration) audio.currentTime = (Number(progress.value) / 100) * audio.duration;
+  });
+  audio.addEventListener('loadedmetadata', function () { duration.textContent = formatTime(audio.duration); });
+  audio.addEventListener('timeupdate', function () {
+    current.textContent = formatTime(audio.currentTime);
+    progress.value = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+  });
+  audio.addEventListener('play', function () { playButton.textContent = 'Ⅱ'; setStatus('PLAYING'); renderList(); });
+  audio.addEventListener('pause', function () { playButton.textContent = '▶'; if (audio.currentTime > 0) setStatus('PAUSED'); });
+  audio.addEventListener('ended', function () { step(1); });
+  ['dragenter', 'dragover'].forEach(function (eventName) { dropzone.addEventListener(eventName, function (event) { event.preventDefault(); dropzone.classList.add('is-dragging'); }); });
+  ['dragleave', 'drop'].forEach(function (eventName) { dropzone.addEventListener(eventName, function (event) { event.preventDefault(); dropzone.classList.remove('is-dragging'); }); });
+  dropzone.addEventListener('drop', function (event) { addFiles(event.dataTransfer.files); });
+  window.addEventListener('beforeunload', function () { objectUrls.forEach(URL.revokeObjectURL); });
+  renderList();
+}());

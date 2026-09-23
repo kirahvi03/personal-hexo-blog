@@ -1,0 +1,37 @@
+<aside class="music-player" data-music-player aria-label="Local music player">
+  <div class="player-header">
+    <span><i class="player-led"></i>LOCAL PLAYER</span>
+    <span class="player-version">00.01</span>
+  </div>
+
+  <div class="player-display">
+    <div class="player-display-top"><span data-player-status>READY</span><span data-player-count>0 TRACKS</span></div>
+    <div class="player-track-name" data-player-title>NO AUDIO LOADED</div>
+    <div class="player-visualizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="player-time"><span data-player-current>00:00</span><span data-player-duration>00:00</span></div>
+    <input class="player-progress" data-player-progress type="range" min="0" max="100" value="0" aria-label="Track progress">
+  </div>
+
+  <div class="player-controls">
+    <button type="button" data-player-action="previous" aria-label="Previous track">|◀</button>
+    <button class="player-play" type="button" data-player-action="toggle" aria-label="Play or pause">▶</button>
+    <button type="button" data-player-action="next" aria-label="Next track">▶|</button>
+  </div>
+
+  <div class="player-volume-row">
+    <span class="volume-label">VOL</span>
+    <input class="player-volume" data-player-volume type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+    <span class="volume-value" data-player-volume-value>80</span>
+  </div>
+
+  <label class="player-import" for="audio-file-input">
+    <span>+ IMPORT AUDIO</span>
+    <small>MP3 · WAV · OGG · M4A</small>
+  </label>
+  <input id="audio-file-input" class="player-file-input" data-player-input type="file" accept="audio/*" multiple>
+
+  <div class="player-dropzone" data-player-dropzone>DROP FILES HERE</div>
+  <div class="player-list-head"><span>PLAYLIST</span><button type="button" data-player-clear>CLEAR</button></div>
+  <ol class="player-playlist" data-player-list><li class="playlist-empty">Your local tracks appear here.</li></ol>
+  <audio data-player-audio preload="metadata"></audio>
+</aside>
