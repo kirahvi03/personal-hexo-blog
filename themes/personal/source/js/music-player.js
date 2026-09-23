@@ -21,8 +21,61 @@
   var volume = root.querySelector('[data-player-volume]');
   var volumeValue = root.querySelector('[data-player-volume-value]');
   var playButton = root.querySelector('[data-player-action="toggle"]');
+  var dragHandle = root.querySelector('[data-player-drag-handle]');
+  var dragState = null;
 
   audio.volume = Number(volume.value);
+
+  function restorePosition() {
+    try {
+      var saved = JSON.parse(localStorage.getItem('personal-blog-player-position'));
+      if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+        root.style.left = Math.max(8, Math.min(saved.left, window.innerWidth - root.offsetWidth - 8)) + 'px';
+        root.style.top = Math.max(8, Math.min(saved.top, window.innerHeight - root.offsetHeight - 8)) + 'px';
+        root.style.right = 'auto';
+        root.style.bottom = 'auto';
+      }
+    } catch (error) { /* localStorage may be unavailable */ }
+  }
+
+  function savePosition() {
+    try { localStorage.setItem('personal-blog-player-position', JSON.stringify({ left: root.offsetLeft, top: root.offsetTop })); } catch (error) { /* ignore storage errors */ }
+  }
+
+  function movePlayer(event) {
+    if (!dragState) return;
+    var left = Math.max(8, Math.min(event.clientX - dragState.offsetX, window.innerWidth - root.offsetWidth - 8));
+    var top = Math.max(8, Math.min(event.clientY - dragState.offsetY, window.innerHeight - root.offsetHeight - 8));
+    root.style.left = left + 'px';
+    root.style.top = top + 'px';
+    root.style.right = 'auto';
+    root.style.bottom = 'auto';
+  }
+
+  dragHandle.addEventListener('pointerdown', function (event) {
+    if (event.button !== 0) return;
+    var rect = root.getBoundingClientRect();
+    dragState = { offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top };
+    root.classList.add('is-dragging');
+    dragHandle.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+  dragHandle.addEventListener('pointermove', movePlayer);
+  dragHandle.addEventListener('pointerup', function (event) {
+    if (!dragState) return;
+    dragState = null;
+    root.classList.remove('is-dragging');
+    if (dragHandle.hasPointerCapture(event.pointerId)) dragHandle.releasePointerCapture(event.pointerId);
+    savePosition();
+  });
+  dragHandle.addEventListener('pointercancel', function () { dragState = null; root.classList.remove('is-dragging'); });
+  window.addEventListener('resize', function () {
+    if (!root.style.left) return;
+    var rect = root.getBoundingClientRect();
+    root.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - root.offsetWidth - 8)) + 'px';
+    root.style.top = Math.max(8, Math.min(rect.top, window.innerHeight - root.offsetHeight - 8)) + 'px';
+    savePosition();
+  });
 
   function formatTime(seconds) {
     if (!Number.isFinite(seconds)) return '00:00';
@@ -145,5 +198,6 @@
   ['dragleave', 'drop'].forEach(function (eventName) { dropzone.addEventListener(eventName, function (event) { event.preventDefault(); dropzone.classList.remove('is-dragging'); }); });
   dropzone.addEventListener('drop', function (event) { addFiles(event.dataTransfer.files); });
   window.addEventListener('beforeunload', function () { objectUrls.forEach(URL.revokeObjectURL); });
+  restorePosition();
   renderList();
 }());

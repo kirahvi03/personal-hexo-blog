@@ -27,7 +27,9 @@ a:hover { color: var(--orange); }
 .site-main { min-height: calc(100vh - 160px); }
 .music-player { position: fixed; z-index: 20; right: 22px; bottom: 22px; width: 286px; padding: 14px; border: 2px solid var(--ink); background: var(--paper-light); box-shadow: var(--shadow); }
 .player-header, .player-display-top, .player-time, .player-list-head, .player-volume-row { display: flex; align-items: center; justify-content: space-between; }
-.player-header { padding-bottom: 11px; border-bottom: 2px solid var(--ink); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.player-header { padding-bottom: 11px; border-bottom: 2px solid var(--ink); cursor: grab; font: 10px 'DM Mono', monospace; letter-spacing: .08em; touch-action: none; user-select: none; }
+.music-player.is-dragging { cursor: grabbing; opacity: .96; }
+.music-player.is-dragging .player-header { cursor: grabbing; }
 .player-led { display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 8px var(--orange); }
 .player-version { color: var(--muted); }
 .player-display { margin-top: 12px; padding: 12px; color: var(--paper-light); background: var(--black-panel); }
