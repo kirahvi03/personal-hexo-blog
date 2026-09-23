@@ -1,0 +1,17 @@
+<button class="menu-toggle" type="button" data-sidebar-toggle aria-expanded="false" aria-controls="site-sidebar">
+  <span class="menu-toggle-icon"><i></i><i></i><i></i></span><span>MENU</span>
+</button>
+<div class="sidebar-backdrop" data-sidebar-close></div>
+<aside class="sidebar" id="site-sidebar" aria-label="网站菜单">
+  <div class="sidebar-header"><span class="sidebar-kicker">DIRECTORY / 01</span><button class="sidebar-close" type="button" data-sidebar-close aria-label="关闭菜单">×</button></div>
+  <div class="sidebar-brand">S S Y<span>ARCHIVE</span></div>
+  <p class="sidebar-intro">A personal index of notes, images, and sound.</p>
+  <nav class="sidebar-nav" aria-label="侧边菜单">
+    <a href="<%= url_for('/') %>"><span class="sidebar-index">00</span><span>首页</span><span class="sidebar-arrow">↗</span></a>
+    <a href="<%= url_for('/notes/') %>"><span class="sidebar-index">01</span><span>札记</span><span class="sidebar-arrow">↗</span></a>
+    <a href="<%= url_for('/gallery/') %>"><span class="sidebar-index">02</span><span>图片库</span><span class="sidebar-arrow">↗</span></a>
+    <a href="<%= url_for('/audio/') %>"><span class="sidebar-index">03</span><span>音频库</span><span class="sidebar-arrow">↗</span></a>
+    <a href="<%= url_for('/about/') %>"><span class="sidebar-index">04</span><span>关于</span><span class="sidebar-arrow">↗</span></a>
+  </nav>
+  <div class="sidebar-footer"><span><i class="sidebar-led"></i> SYSTEM ONLINE</span><span>2026—NOW</span></div>
+</aside>

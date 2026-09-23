@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="<%= url_for('/css/main.css') %>">
 </head>
 <body>
+  <%- partial('_partial/sidebar-menu') %>
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="<%= url_for('/') %>"><span class="brand-mark">✳</span><span><%= config.title %></span></a>
@@ -21,5 +22,6 @@
     <footer class="site-footer"><span>© <%= new Date().getFullYear() %> · Signal archive</span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">Email</a></span></footer>
   </div>
   <script src="<%= url_for('/js/music-player.js') %>"></script>
+  <script src="<%= url_for('/js/sidebar-menu.js') %>"></script>
 </body>
 </html>
