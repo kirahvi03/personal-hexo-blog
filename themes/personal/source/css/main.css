@@ -34,7 +34,10 @@ a:hover { color: var(--orange); }
 .is-sidebar-expanded .sidebar { width: min(370px, calc(100% - 30px)); padding: 24px; box-shadow: 8px 0 0 var(--orange); }
 .is-sidebar-expanded .sidebar > :not(.panel-screw):not(.sidebar-rail), .is-sidebar-open .sidebar > :not(.panel-screw):not(.sidebar-rail) { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: .12s; }
 .is-sidebar-expanded .sidebar-rail, .is-sidebar-open .sidebar-rail { opacity: 0; visibility: hidden; }
-.is-sidebar-expanded .sidebar-nav { position: static; }
+.is-sidebar-expanded .sidebar-nav { position: static; max-height: calc(100vh - 390px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--orange) var(--line); }
+.is-sidebar-expanded .sidebar-nav::-webkit-scrollbar { width: 8px; }
+.is-sidebar-expanded .sidebar-nav::-webkit-scrollbar-track { background: var(--line); }
+.is-sidebar-expanded .sidebar-nav::-webkit-scrollbar-thumb { background: var(--orange); border: 2px solid var(--paper-light); }
 .is-sidebar-expanded .sidebar-nav a { grid-template-columns: 36px 1fr 20px; padding: 15px 9px; }
 .is-sidebar-expanded .sidebar-nav a > :not(.sidebar-index) { display: initial; }
 .is-sidebar-open .sidebar { width: min(370px, calc(100% - 30px)); padding: 24px; transform: translateX(0); box-shadow: 8px 0 0 var(--orange); }
@@ -254,7 +257,10 @@ code { padding: 4px 6px; color: var(--ink); background: var(--yellow); border: 1
 @media (max-width: 720px) {
   .sidebar { width: min(370px, calc(100% - 30px)); padding: 24px; transform: translateX(-105%); }
   .sidebar-rail { display: none; }
-  .sidebar-nav { position: static; }
+  .sidebar-nav { position: static; max-height: calc(100vh - 360px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--orange) var(--line); }
+  .sidebar-nav::-webkit-scrollbar { width: 8px; }
+  .sidebar-nav::-webkit-scrollbar-track { background: var(--line); }
+  .sidebar-nav::-webkit-scrollbar-thumb { background: var(--orange); border: 2px solid var(--paper-light); }
   .sidebar-nav a { grid-template-columns: 36px 1fr 20px; justify-items: stretch; gap: 9px; padding: 15px 9px; }
   .sidebar-nav a > :not(.sidebar-index) { display: initial; }
   .archive-desk { padding: 16px; }
