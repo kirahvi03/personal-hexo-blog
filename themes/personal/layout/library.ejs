@@ -3,7 +3,7 @@
   <div class="article-content"><%- page.content %></div>
   <% if (page.library_type === 'notes') { %>
     <section class="notes-directory">
-      <div class="notes-directory-head"><div><p class="eyebrow">INDEX / NOTES</p><h2>ARTICLE DIRECTORY</h2></div><span>CHANNEL 01</span></div>
+      <div class="notes-directory-head"><div><p class="eyebrow">INDEX / NOTES</p><h2>模型库</h2></div><span>CHANNEL 01</span></div>
       <% var notePosts = site.posts.filter(function (post) { var categories = post.categories && (post.categories.data || post.categories); return categories && categories.some(function (category) { return String(category.name || category).toLowerCase() === 'notes'; }); }); %>
       <% if (!notePosts.length) { %>
         <p class="archive-empty">No articles in this channel yet.</p>
