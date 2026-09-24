@@ -215,6 +215,15 @@ a:hover { color: var(--orange); }
 .hero h1 span { color: var(--orange); text-shadow: 2px 2px 0 var(--ink); }
 .hero-copy { max-width: 530px; margin: 34px 0 0; color: var(--muted); font-size: 16px; line-height: 1.8; }
 .device-card { align-self: end; border: 2px solid var(--ink); background: var(--black-panel); color: var(--paper-light); padding: 17px; box-shadow: var(--shadow); transform: rotate(2deg); }
+.device-card { position: relative; cursor: pointer; transition: transform .25s ease, box-shadow .25s ease; }
+.device-card:hover, .device-card:focus-within { transform: rotate(0) translateY(-7px); box-shadow: 8px 8px 0 var(--orange); }
+.device-card-hover { position: absolute; right: -2px; bottom: -2px; left: -2px; display: grid; gap: 5px; padding: 13px; color: var(--ink); background: var(--yellow); border: 2px solid var(--ink); opacity: 0; transform: translateY(14px); transition: opacity .22s, transform .22s; pointer-events: none; }
+.device-card:hover .device-card-hover, .device-card:focus-within .device-card-hover { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.device-card-hover span, .device-card-hover small { font: 8px 'DM Mono', monospace; letter-spacing: .1em; }.device-card-hover strong { font-size: 14px; letter-spacing: -.04em; }
+.desktop-pet { position: fixed; z-index: 28; left: -260px; top: 50%; width: 154px; padding: 9px; border: 2px solid var(--ink); color: var(--paper-light); background: var(--black-panel); box-shadow: 5px 5px 0 var(--ink); opacity: 0; transform: scale(.72) rotate(-4deg); transition: opacity .25s, transform .25s; cursor: grab; touch-action: none; user-select: none; }
+.desktop-pet.is-visible { opacity: 1; transform: scale(1) rotate(-2deg); }.desktop-pet.is-dragging { cursor: grabbing; transform: scale(1.04) rotate(0); }.desktop-pet.is-talking img { animation: pet-bounce .45s steps(2, end) 2; }
+.desktop-pet-name, .desktop-pet-status { display: flex; justify-content: space-between; color: var(--yellow); font: 8px 'DM Mono', monospace; letter-spacing: .08em; }.desktop-pet-name span { color: var(--orange); }.desktop-pet img { display: block; width: 100%; margin: 8px 0; image-rendering: pixelated; image-rendering: crisp-edges; border: 2px solid var(--orange); background: #fff; }.desktop-pet-status { color: var(--muted); }
+@keyframes pet-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 .device-card-top { display: flex; justify-content: space-between; color: var(--yellow); font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
 .device-card-title { margin: 38px 0 29px; font-size: 35px; line-height: .9; letter-spacing: -.08em; }
 .device-card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #5b5b55; padding-top: 12px; color: #b9b9ad; font: 9px 'DM Mono', monospace; }

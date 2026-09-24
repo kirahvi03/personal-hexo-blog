@@ -7,7 +7,7 @@
   <meta name="description" content="<%= page.description || config.description %>">
   <link rel="stylesheet" href="<%= url_for('/css/main.css') %>">
 </head>
-<body>
+<body data-pet-image="<%= url_for('/images/desktop-pet.jpg') %>">
   <%- partial('_partial/sidebar-menu') %>
   <div class="site-shell">
     <header class="site-header">
@@ -27,6 +27,7 @@
   <script src="<%= url_for('/js/archive-desk.js') %>"></script>
   <script src="<%= url_for('/js/search.js') %>"></script>
   <script src="<%= url_for('/js/model-preview.js') %>"></script>
+  <script src="<%= url_for('/js/desktop-pet.js') %>"></script>
   <script src="<%= url_for('/js/music-player.js') %>"></script>
   <script src="<%= url_for('/js/sidebar-menu.js') %>"></script>
 </body>
