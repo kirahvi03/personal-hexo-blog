@@ -10,7 +10,7 @@
       <% } else { %>
         <ol class="notes-directory-list">
           <% notePosts.forEach(function (post, index) { %>
-            <li><a href="<%= url_for(post.path) %>"><span class="notes-directory-index"><%= String(index + 1).padStart(2, '0') %></span><span class="notes-directory-title"><strong><%= post.title %></strong><small><%= date(post.date, 'YYYY.MM.DD') %> / <%= strip_html(post.excerpt || post.content).slice(0, 120) %></small></span><span class="notes-directory-arrow">↗</span></a></li>
+            <li class="notes-directory-entry"><a href="<%= url_for(post.path) %>"><span class="notes-directory-index"><%= String(index + 1).padStart(2, '0') %></span><span class="notes-directory-title"><strong><%= post.title %></strong><small><%= date(post.date, 'YYYY.MM.DD') %> / <%= strip_html(post.excerpt || post.content).slice(0, 120) %></small></span><span class="notes-directory-arrow">↗</span></a><% if (post.media_type === 'model' && post.media_url) { %><%- partial('_partial/model-preview', { modelUrl: post.media_url, modelTitle: post.title, modelSize: 'thumb', linkUrl: url_for(post.path) }) %><% } else if (post.media_type === 'image' && post.media_url) { %><a class="notes-media-thumb" href="<%= url_for(post.path) %>"><img src="<%= url_for(post.media_url) %>" alt="<%= post.title %>"></a><% } else if (post.media_type === 'audio') { %><div class="notes-media-thumb notes-audio-thumb"><span>♫</span><small>AUDIO NOTE</small></div><% } %></li>
           <% }); %>
         </ol>
       <% } %>

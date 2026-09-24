@@ -6,6 +6,9 @@ categories:
 tags:
   - 3D MODEL
   - FAMILY
+media_type: model
+media_url: /models/baba-birthday.3dm
+media_label: Rhino 3DM / INTERACTIVE PREVIEW
 ---
 
 ## 模型记录

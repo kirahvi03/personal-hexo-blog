@@ -1,0 +1,6 @@
+<% var previewClass = modelSize === 'large' ? 'model-preview model-preview-large' : (modelSize === 'thumb' ? 'model-preview model-preview-thumb' : 'model-preview model-preview-card'); %>
+<div class="<%= previewClass %>" data-model-preview data-model-url="<%= url_for(modelUrl) %>" data-model-title="<%= modelTitle %>">
+  <div class="model-preview-top"><span>3DM / WEBGL</span><span data-model-status>LOADING</span></div>
+  <canvas data-model-canvas aria-label="Interactive 3D preview of <%= modelTitle %>"></canvas>
+  <div class="model-preview-bottom"><span>DRAG TO ROTATE · SCROLL TO ZOOM</span><% if (typeof linkUrl !== 'undefined' && linkUrl) { %><a href="<%= linkUrl %>">VIEW NOTE ↗</a><% } %></div>
+</div>

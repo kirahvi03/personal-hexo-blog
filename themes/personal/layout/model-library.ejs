@@ -1,0 +1,14 @@
+<article class="article model-library-page">
+  <header class="article-header"><p class="eyebrow">ARCHIVE / MODELS</p><h1><%= page.title %></h1></header>
+  <div class="article-content"><%- page.content %></div>
+  <section class="model-library-grid" aria-label="Uploaded models">
+    <% var modelPosts = site.posts.filter(function (post) { return post.media_type === 'model' && post.media_url; }); %>
+    <% if (!modelPosts.length) { %>
+      <p class="archive-empty">No models in the archive yet.</p>
+    <% } else { %>
+      <% modelPosts.forEach(function (post, index) { %>
+        <article class="model-library-card"><div class="model-library-card-head"><span><%= String(index + 1).padStart(2, '0') %> / MODEL</span><span><%= date(post.date, 'YYYY.MM.DD') %></span></div><%- partial('_partial/model-preview', { modelUrl: post.media_url, modelTitle: post.title, modelSize: 'card', linkUrl: url_for(post.path) }) %><div class="model-library-card-copy"><h2><a href="<%= url_for(post.path) %>"><%= post.title %></a></h2><p><%= strip_html(post.excerpt || post.content).slice(0, 160) %></p><a class="model-open-link" href="<%= url_for(post.path) %>">OPEN NOTE ↗</a></div></article>
+      <% }); %>
+    <% } %>
+  </section>
+</article>
