@@ -15,14 +15,17 @@
       <nav class="site-nav" aria-label="Main navigation">
         <a href="<%= url_for('/') %>">Index</a>
         <a href="<%= url_for('/about/') %>">About</a>
+        <button class="site-search-trigger" type="button" data-search-toggle aria-expanded="false">Search</button>
       </nav>
     </header>
+    <%- partial('_partial/search-panel') %>
     <main class="site-main"><%- body %></main>
     <%- partial('_partial/music-player') %>
     <footer class="site-footer"><span>© <%= new Date().getFullYear() %> · Signal archive</span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">Email</a></span></footer>
   </div>
   <script src="<%= url_for('/js/archive-store.js') %>"></script>
   <script src="<%= url_for('/js/archive-desk.js') %>"></script>
+  <script src="<%= url_for('/js/search.js') %>"></script>
   <script src="<%= url_for('/js/music-player.js') %>"></script>
   <script src="<%= url_for('/js/sidebar-menu.js') %>"></script>
 </body>

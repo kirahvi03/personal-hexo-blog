@@ -1,5 +1,20 @@
 <article class="article library-page">
   <header class="article-header"><p class="eyebrow">ARCHIVE / <%= String(page.library_type || 'notes').toUpperCase() %></p><h1><%= page.title %></h1></header>
   <div class="article-content"><%- page.content %></div>
+  <% if (page.library_type === 'notes') { %>
+    <section class="notes-directory">
+      <div class="notes-directory-head"><div><p class="eyebrow">INDEX / NOTES</p><h2>ARTICLE DIRECTORY</h2></div><span>CHANNEL 01</span></div>
+      <% var notePosts = site.posts.filter(function (post) { var categories = post.categories && (post.categories.data || post.categories); return categories && categories.some(function (category) { return String(category.name || category).toLowerCase() === 'notes'; }); }); %>
+      <% if (!notePosts.length) { %>
+        <p class="archive-empty">No articles in this channel yet.</p>
+      <% } else { %>
+        <ol class="notes-directory-list">
+          <% notePosts.forEach(function (post, index) { %>
+            <li><a href="<%= url_for(post.path) %>"><span class="notes-directory-index"><%= String(index + 1).padStart(2, '0') %></span><span class="notes-directory-title"><strong><%= post.title %></strong><small><%= date(post.date, 'YYYY.MM.DD') %> / <%= strip_html(post.excerpt || post.content).slice(0, 120) %></small></span><span class="notes-directory-arrow">↗</span></a></li>
+          <% }); %>
+        </ol>
+      <% } %>
+    </section>
+  <% } %>
   <%- partial('_partial/archive-desk', { libraryType: page.library_type || 'notes' }) %>
 </article>
