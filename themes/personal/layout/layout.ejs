@@ -7,7 +7,7 @@
   <meta name="description" content="<%= page.description || config.description %>">
   <link rel="stylesheet" href="<%= url_for('/css/main.css') %>">
 </head>
-<body data-pet-image="<%= url_for('/images/desktop-pet.jpg') %>">
+<body data-pet-image="<%= url_for('/images/desktop-pet.jpg') %>" data-pet-frame-1="<%= url_for('/images/pet-frame-1.png') %>" data-pet-frame-2="<%= url_for('/images/pet-frame-2.png') %>" data-pet-frame-3="<%= url_for('/images/pet-frame-3.png') %>">
   <%- partial('_partial/sidebar-menu') %>
   <div class="site-shell">
     <header class="site-header">
