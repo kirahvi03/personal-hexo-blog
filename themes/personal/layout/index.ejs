@@ -11,11 +11,28 @@
     <div class="device-card-hover" aria-hidden="true"><span>DESKTOP PET</span><strong>CLICK TO SUMMON</strong><small>HOLD / DRAG / CLICK</small></div>
   </div>
 </div>
+<% var latestPosts = site.posts.sort('date', -1).limit(6); %>
 <section class="posts-section" aria-label="Latest posts">
-  <div class="section-heading"><h2>Latest posts</h2><span>0 posts</span></div>
-  <div class="empty-state">
-    <div class="empty-icon">&#10022;</div>
-    <h3>It is quiet here for now</h3>
-    <p>Your first post is on its way. Run <code>hexo new post "Your title"</code> to start writing.</p>
-  </div>
+  <div class="section-heading"><h2>Latest posts</h2><span><%= latestPosts.length %> posts</span></div>
+  <% if (!latestPosts.length) { %>
+    <div class="empty-state">
+      <div class="empty-icon">&#10022;</div>
+      <h3>It is quiet here for now</h3>
+      <p>Your first post is on its way. Run <code>hexo new post "Your title"</code> to start writing.</p>
+    </div>
+  <% } else { %>
+    <div class="post-list">
+      <% latestPosts.forEach(function (post, index) { %>
+        <article class="post-card">
+          <span class="post-card-index"><%= String(index + 1).padStart(2, '0') %></span>
+          <div class="post-card-body">
+            <p class="eyebrow"><%= date(post.date, 'YYYY.MM.DD') %></p>
+            <h3><a href="<%= url_for(post.path) %>"><%= post.title %></a></h3>
+            <p><%= strip_html(post.excerpt || post.content).slice(0, 180) %></p>
+          </div>
+          <a class="post-card-arrow" href="<%= url_for(post.path) %>" aria-label="Open <%= post.title %>">&#8599;</a>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
 </section>
