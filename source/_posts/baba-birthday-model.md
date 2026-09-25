@@ -20,3 +20,5 @@ media_label: Rhino 3DM / INTERACTIVE PREVIEW
 [下载 Rhino 模型文件](/personal-hexo-blog/models/baba-birthday.3dm)
 
 > 文件格式：Rhino 3DM。请使用 Rhino 或兼容 3D 软件打开。
+
+2026 9 23
