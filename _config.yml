@@ -17,7 +17,7 @@ deploy:
   type: git
   repo: https://github.com/kirahvi03/personal-hexo-blog.git
   branch: gh-pages
-  message: 'Deploy: {{ now("YYYY-MM-DD HH:mm:ss") }}'
+  message: 'Deploy site with Hexo'
 
 skip_render:
   - README.md
