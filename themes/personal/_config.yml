@@ -38,4 +38,4 @@ waline:
   # 评论列表每页条数
   pageSize: 10
   # CDN 地址。国内访问慢的话可换成 https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/
-  cdn: https://unpkg.com/@waline/client@v3/dist/
+  cdn: https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/

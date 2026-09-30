@@ -23,7 +23,7 @@
 
   /* serverURL 由 layout.ejs 写在 body 的 data 属性上 */
   var serverURL = (themeWaline.serverURL || body.getAttribute('data-waline-server') || '').trim().replace(/\/+$/, '');
-  var cdn = String(themeWaline.cdn || body.getAttribute('data-waline-cdn') || 'https://unpkg.com/@waline/client@v3/dist/').replace(/\/?$/, '/');
+  var cdn = String(themeWaline.cdn || body.getAttribute('data-waline-cdn') || 'https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/').replace(/\/?$/, '/');
   var path = (themeWaline.path || body.getAttribute('data-waline-path') || window.location.pathname);
 
   /* 没配置服务端地址就不加载，页面上已经显示了配置提示 */
@@ -63,9 +63,19 @@
     return options;
   }
 
+  function loadWaline(urls, index) {
+    return import(/* webpackIgnore: true */ urls[index] + 'waline.js').catch(function (error) {
+      if (index + 1 < urls.length) return loadWaline(urls, index + 1);
+      throw error;
+    });
+  }
+
   function boot() {
     setStatus('loading');
-    import(/* webpackIgnore: true */ cdn + 'waline.js')
+    var cdnUrls = [cdn];
+    if (cdn !== 'https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/') cdnUrls.push('https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/');
+    if (cdn !== 'https://unpkg.com/@waline/client@v3/dist/') cdnUrls.push('https://unpkg.com/@waline/client@v3/dist/');
+    loadWaline(cdnUrls, 0)
       .then(function (mod) {
         var Waline = (mod && (mod.default || mod)) || {};
         if (typeof Waline.init !== 'function') throw new Error('Waline init() not found');

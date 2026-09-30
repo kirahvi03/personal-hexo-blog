@@ -12,7 +12,7 @@
   var seen = {};
   var body = document.body;
   var serverURL = (body.getAttribute('data-waline-server') || '').trim().replace(/\/+$/, '');
-  var cdn = String(body.getAttribute('data-waline-cdn') || 'https://unpkg.com/@waline/client@v3/dist/').replace(/\/?$/, '/');
+  var cdn = String(body.getAttribute('data-waline-cdn') || 'https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/').replace(/\/?$/, '/');
 
   /* 没配置服务端地址就跳过 */
   if (!serverURL) return;
@@ -29,8 +29,18 @@
     });
   }
 
+  function loadPageview(urls, index) {
+    return import(/* webpackIgnore: true */ urls[index] + 'pageview.js').catch(function (error) {
+      if (index + 1 < urls.length) return loadPageview(urls, index + 1);
+      throw error;
+    });
+  }
+
   function boot() {
-    import(/* webpackIgnore: true */ cdn + 'pageview.js')
+    var cdnUrls = [cdn];
+    if (cdn !== 'https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/') cdnUrls.push('https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/');
+    if (cdn !== 'https://unpkg.com/@waline/client@v3/dist/') cdnUrls.push('https://unpkg.com/@waline/client@v3/dist/');
+    loadPageview(cdnUrls, 0)
       .then(function (mod) {
         var pageviewCount = (mod && (mod.default && mod.default.pageviewCount)) || (mod && mod.pageviewCount);
         if (typeof pageviewCount !== 'function') throw new Error('Waline pageviewCount() not found');
