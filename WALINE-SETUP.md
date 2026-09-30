@@ -1,10 +1,38 @@
 # 评论 + 浏览量（Waline）部署说明
 
+> ## ✅ 当前状态：服务端已部署完成
+>
+> | 项目 | 值 |
+> | --- | --- |
+> | Waline 服务端 | **https://ssy-beta.vercel.app**（Vercel 项目 `ssy`） |
+> | 数据库 | **Neon Postgres**，资源名 `ssy-waline-db` |
+> | 已建数据表 | `wl_comment`（评论）、`wl_counter`（浏览量）、`wl_users`（用户） |
+> | 博客配置 | `themes/personal/_config.yml` → `waline.serverURL` 已填好并推送上线 |
+>
+> ### ⚠️ 你还差最后一步：注册管理员
+>
+> 打开 **https://ssy-beta.vercel.app/ui/register** 注册一个账号。
+> **第一个注册的人自动成为管理员**，之后用同一账号登录 https://ssy-beta.vercel.app/ui
+> 就能审核、删除、标记评论。这个位置**先到先得**，请尽快注册。
+>
+> ### 日常入口
+>
+> - 评论管理后台：https://ssy-beta.vercel.app/ui
+> - Vercel 项目：https://vercel.com/orgamic945-5944/ssy
+> - 数据库：Vercel 项目 → `Storage` → `ssy-waline-db`
+>
+> ### 注意：别把地址搞错
+>
+> 你账号里还有一个 `personal-hexo-blog.vercel.app`，那是**博客自己的副本**，
+> 上面没有 Waline（`/api` 全是 404），**不要**把它填进 `serverURL`。
+
+---
+
+## 以下是重装 / 迁移时的完整步骤
+
 这个博客是 Hexo + GitHub Pages 纯静态站，本身没有数据库，所以「浏览量」和「评论」
 必须依赖一个外部服务来存数据。这里用的是 **Waline**：一个免费开源的服务，
 自己在 Vercel 上部署一份，就能同时提供**浏览量统计**和**评论系统**。
-
-代码已经全部改好了，你只需要做两件事：**① 部署 Waline 服务端；② 把地址填进配置。**
 
 ---
 
@@ -103,8 +131,10 @@ npm run server
 - **必填项**：`themes/personal/_config.yml` 里的
   `waline.requiredMeta: [nick, mail]` 就是「必须填昵称和邮箱」。
   邮箱只用于接收回复通知，不会公开显示。
-- **CDN 慢**：国内访问 unpkg 慢的话，把 `waline.cdn` 换成
-  `https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/`
-  （把 `waline.css` 和脚本一并换掉，配置里改一处即可）。
+- **CDN**：当前用的是 jsDelivr（`https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/`），
+  国内访问较快，也是你手动改成的这一版。如果哪天 jsDelivr 出问题，
+  把 `waline.cdn` 换回 `https://unpkg.com/@waline/client@v3/dist/` 即可，改一处就够。
 - **评论迁移**：数据都在 Neon 里，换域名不影响；换了博客域名后
   `path` 会变（Waline 用 URL 路径区分文章），旧评论需要到 `/ui` 后台改路径。
+- **查看实时数据**：Vercel 项目 → `Storage` → `ssy-waline-db` → `Open in Neon` →
+  `Tables`，可以直接看 `wl_comment` 和 `wl_counter` 里的原始数据。
