@@ -1,9 +1,41 @@
-menu:
+﻿menu:
   首页: /
   关于: /about/
 
 social:
-  GitHub: https://github.com/
+  GitHub: https://github.com/kirahvi03
   邮箱: mailto:hello@example.com
 
+# 顶部导航栏的 Follow 按钮：点击直接跳转到你的 GitHub 主页
+# 把下面的地址改成你自己的 GitHub 主页地址即可
+follow:
+  label: Follow
+  url: https://github.com/kirahvi03
+
 accent: '#176b5b'
+
+# ============================================================
+# 浏览量统计 + 札记评论（由 Waline 提供）
+# ------------------------------------------------------------
+# 部署步骤见博客根目录的 WALINE-SETUP.md
+# 只有把 waline.serverURL 填成你自己的地址后，这两个功能才会生效。
+# ============================================================
+waline:
+  # 例如 https://my-blog-comment.vercel.app  （结尾不要带 /）
+  serverURL: ''
+  # 评论框和评论列表的界面语言
+  lang: zh-CN
+  # 评论者昵称、邮箱必填（邮箱不会公开显示）
+  requiredMeta:
+    - nick
+    - mail
+  # 关闭「注册 / 登录」，访客只能填写昵称 + 邮箱后直接评论
+  login: disable
+  # 跟随站点主题切换暗黑模式（布局用 html[data-theme="dark"]）
+  dark: 'html[data-theme="dark"]'
+  # 打开文章页时自动统计一次浏览量
+  pageview: true
+  # 评论列表每页条数
+  pageSize: 10
+  # CDN 地址。国内访问慢的话可换成 https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/
+  cdn: https://unpkg.com/@waline/client@v3/dist/

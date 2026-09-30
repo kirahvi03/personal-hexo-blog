@@ -1,6 +1,7 @@
 <article class="article library-page">
   <header class="article-header"><p class="eyebrow">ARCHIVE / <%= String(page.library_type || 'notes').toUpperCase() %></p><h1><%= page.title %></h1></header>
   <div class="article-content"><%- page.content %></div>
+  <% var libraryWalineReady = String((theme.waline && theme.waline.serverURL) || '').trim().length > 0; %>
   <% if (page.library_type === 'notes') { %>
     <section class="notes-directory">
       <div class="notes-directory-head"><div><p class="eyebrow">INDEX / NOTES</p><h2>NOTES</h2></div><span>CHANNEL 01</span></div>
@@ -10,7 +11,7 @@
       <% } else { %>
         <ol class="notes-directory-list">
           <% notePosts.forEach(function (post, index) { %>
-            <li class="notes-directory-entry"><a href="<%= url_for(post.path) %>"><span class="notes-directory-index"><%= String(index + 1).padStart(2, '0') %></span><span class="notes-directory-title"><strong><%= post.title %></strong><small><%= date(post.date, 'YYYY.MM.DD') %> / <%= strip_html(post.excerpt || post.content).slice(0, 120) %></small></span><span class="notes-directory-arrow">↗</span></a><% if (post.media_type === 'model' && post.media_url) { %><%- partial('_partial/model-preview', { modelUrl: post.media_url, modelTitle: post.title, modelSize: 'thumb', linkUrl: url_for(post.path) }) %><% } else if (post.media_type === 'image' && post.media_url) { %><a class="notes-media-thumb" href="<%= url_for(post.path) %>"><img src="<%= url_for(post.media_url) %>" alt="<%= post.title %>"></a><% } else if (post.media_type === 'audio') { %><div class="notes-media-thumb notes-audio-thumb"><span>♫</span><small>AUDIO NOTE</small></div><% } %></li>
+            <li class="notes-directory-entry"><a href="<%= url_for(post.path) %>"><span class="notes-directory-index"><%= String(index + 1).padStart(2, '0') %></span><span class="notes-directory-title"><strong><%= post.title %></strong><small><%= date(post.date, 'YYYY.MM.DD') %><% if (libraryWalineReady) { %> · 浏览 <span class="waline-pageview-count" data-path="/<%= post.path %>">—</span> 次<% } %> / <%= strip_html(post.excerpt || post.content).slice(0, 120) %></small></span><span class="notes-directory-arrow">↗</span></a><% if (post.media_type === 'model' && post.media_url) { %><%- partial('_partial/model-preview', { modelUrl: post.media_url, modelTitle: post.title, modelSize: 'thumb', linkUrl: url_for(post.path) }) %><% } else if (post.media_type === 'image' && post.media_url) { %><a class="notes-media-thumb" href="<%= url_for(post.path) %>"><img src="<%= url_for(post.media_url) %>" alt="<%= post.title %>"></a><% } else if (post.media_type === 'audio') { %><div class="notes-media-thumb notes-audio-thumb"><span>♫</span><small>AUDIO NOTE</small></div><% } %></li>
           <% }); %>
         </ol>
       <% } %>

@@ -1,0 +1,18 @@
+<%
+  /* Waline 评论区：昵称 + 邮箱必填，邮箱不会公开显示 */
+  var walineReady = String((theme.waline && theme.waline.serverURL) || '').trim().length > 0;
+  var commentsOff = (page.comments === false || page.comments === 'false');
+%>
+<section class="waline-wrap" id="comments" data-waline-comments aria-label="评论区">
+  <div class="waline-head">
+    <div><p class="eyebrow">COMMENTS / 评论</p><h2>留言</h2></div>
+    <span class="waline-head-note">昵称与邮箱必填</span>
+  </div>
+  <div id="waline" class="waline-mount"></div>
+  <% if (!commentsOff && !walineReady) { %>
+    <div class="waline-setup">
+      <strong>评论服务还没有配置</strong>
+      <p>把 <code>themes/personal/_config.yml</code> 里 <code>waline.serverURL</code> 填成你自己的 Waline 服务地址，评论框就会自动出现。部署步骤见博客根目录的 <code>WALINE-SETUP.md</code>。</p>
+    </div>
+  <% } %>
+</section>

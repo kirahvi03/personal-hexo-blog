@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html lang="<%= config.language || 'zh-CN' %>">
+<%
+  /* ---- 站点级配置：Follow 按钮 / 浏览量 / 评论（Waline） ---- */
+  var walineConfig = theme.waline || {};
+  var walineServer = String(walineConfig.serverURL || '').trim().replace(/\/+$/, '');
+  var walineCDN = String(walineConfig.cdn || 'https://unpkg.com/@waline/client@v3/dist/').replace(/\/?$/, '/');
+  var followConfig = theme.follow || {};
+  var followUrl = String(followConfig.url || (theme.social && theme.social.GitHub) || '').trim();
+  if (followUrl && !/^(https?:|mailto:|\/)/.test(followUrl)) followUrl = 'https://github.com/' + followUrl.replace(/^\/+/, '');
+  var followLabel = followConfig.label || 'Follow';
+  var emailRaw = String((theme.social && theme.social['邮箱']) || '').trim();
+  var emailHref = !emailRaw ? '' : (/^mailto:/.test(emailRaw) ? emailRaw : 'mailto:' + emailRaw);
+  var emailText = emailRaw.replace(/^mailto:/, '');
+%>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= page.title ? page.title + ' · ' : '' %><%= config.title %></title>
   <meta name="description" content="<%= page.description || config.description %>">
   <link rel="stylesheet" href="<%= url_for('/css/main.css') %>">
+  <% if (walineServer) { %><link rel="stylesheet" href="<%= walineCDN %>waline.css"><% } %>
 </head>
-<body data-pet-image="<%= url_for('/images/desktop-pet.jpg') %>" data-pet-frame-1="<%= url_for('/images/pet-frame-1.png') %>" data-pet-frame-2="<%= url_for('/images/pet-frame-2.png') %>" data-pet-frame-3="<%= url_for('/images/pet-frame-3.png') %>">
+<body data-pet-image="<%= url_for('/images/desktop-pet.jpg') %>" data-pet-frame-1="<%= url_for('/images/pet-frame-1.png') %>" data-pet-frame-2="<%= url_for('/images/pet-frame-2.png') %>" data-pet-frame-3="<%= url_for('/images/pet-frame-3.png') %>" data-waline-server="<%= walineServer %>" data-waline-cdn="<%= walineCDN %>" data-waline-path="<%= page.path ? '/' + page.path : '/' %>">
   <%- partial('_partial/sidebar-menu') %>
   <div class="site-shell">
     <header class="site-header">
@@ -16,14 +30,17 @@
         <a href="<%= url_for('/') %>">Index</a>
         <a href="<%= url_for('/about/') %>">About</a>
         <button class="site-search-trigger" type="button" data-search-toggle aria-expanded="false">Search</button>
+        <% if (followUrl) { %><a class="site-nav-follow" href="<%= followUrl %>" target="_blank" rel="noopener noreferrer" title="<%= followUrl %>"><span class="site-nav-follow-led"></span><%= followLabel %><span aria-hidden="true">↗</span></a><% } %>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon">☾</span><span data-theme-label>Dark</span></button>
       </nav>
     </header>
     <%- partial('_partial/search-panel') %>
     <main class="site-main"><%- body %></main>
     <%- partial('_partial/music-player') %>
-    <footer class="site-footer"><span>© <%= new Date().getFullYear() %> · Signal archive</span><span class="footer-links"><a href="https://github.com/">GitHub</a><a href="mailto:hello@example.com">Email</a></span></footer>
+    <footer class="site-footer"><span>© <%= new Date().getFullYear() %> · Signal archive</span><span class="footer-links"><% if (followUrl) { %><a href="<%= followUrl %>" target="_blank" rel="noopener noreferrer">GitHub</a><% } %><% if (emailHref) { %><a href="<%= emailHref %>"><%= emailText %></a><% } %></span></footer>
   </div>
+  <script src="<%= url_for('/js/comments.js') %>"></script>
+  <script src="<%= url_for('/js/pageview.js') %>"></script>
   <script src="<%= url_for('/js/archive-store.js') %>"></script>
   <script src="<%= url_for('/js/archive-desk.js') %>"></script>
   <script src="<%= url_for('/js/search.js') %>"></script>

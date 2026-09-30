@@ -93,6 +93,10 @@ a:hover { color: var(--orange); }
 .site-nav a:hover { color: var(--ink); background: var(--yellow); border-color: var(--ink); }
 .theme-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 9px 10px; border: 1px solid var(--ink); color: var(--ink); background: transparent; cursor: pointer; font: inherit; text-transform: uppercase; letter-spacing: inherit; }
 .theme-toggle:hover, .theme-toggle[aria-pressed="true"] { color: var(--ink); background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); }
+.site-nav-follow { display: inline-flex; align-items: center; gap: 7px; padding: 9px 11px; border: 1px solid var(--ink); color: var(--ink); background: transparent; }
+.site-nav-follow:hover { color: var(--ink); background: var(--orange); box-shadow: 2px 2px 0 var(--ink); }
+.site-nav-follow-led { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.site-nav-follow:hover .site-nav-follow-led { background: var(--ink); box-shadow: none; }
 .theme-toggle-icon { color: var(--orange); font-size: 14px; line-height: 1; }
 .site-main { min-height: calc(100vh - 160px); }
 .music-player { position: fixed; z-index: 20; right: 22px; bottom: 22px; width: 286px; padding: 14px; border: 2px solid var(--ink); background: var(--paper-light); box-shadow: var(--shadow); }
@@ -307,5 +311,47 @@ code { padding: 4px 6px; color: var(--ink); background: var(--yellow); border: 1
   .notes-directory-entry { min-height: 96px; padding-right: 116px; }
   .model-preview-thumb, .notes-media-thumb { right: 8px; bottom: 8px; width: 100px; height: 72px; }
   .model-preview-thumb canvas { height: 42px; }
+}
+
+/* ============================================================
+   浏览量统计（Waline pageview）
+   页面里每个 .waline-pageview-count[data-path] 都会被自动填充数字
+   ============================================================ */
+.waline-pageview-count { color: var(--orange); font: 500 11px 'DM Mono', monospace; letter-spacing: .06em; }
+.article-view { display: inline-flex; align-items: center; gap: 6px; margin: 18px 0 0; padding: 5px 8px; border: 1px solid var(--line); color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.article-view::before { content: 'READ'; padding-right: 7px; border-right: 1px solid var(--line); color: var(--muted); }
+.post-card-view { margin: 12px 0 0 !important; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .06em; }
+
+/* ============================================================
+   评论区（Waline）
+   把默认蓝色外观改成博客的「粗边框 + 硬阴影」工业风
+   ============================================================ */
+.waline-wrap { max-width: 800px; margin: 64px auto 0; padding: 24px; border: 2px solid var(--ink); background: var(--paper-light); box-shadow: var(--shadow); }
+.waline-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 2px solid var(--ink); }
+.waline-head .eyebrow { margin-bottom: 8px; }
+.waline-head h2 { margin: 0; font-size: 28px; letter-spacing: -.07em; }
+.waline-head-note { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .1em; }
+.waline-mount { margin-top: 18px; }
+.waline-setup { margin-top: 18px; padding: 18px; border: 1px dashed var(--line); background: var(--paper); }
+.waline-setup strong { display: block; margin-bottom: 8px; font-size: 16px; }
+.waline-setup p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.waline-error { margin: 0; padding: 16px; border: 2px solid var(--ink); color: var(--ink); background: var(--yellow); font-size: 13px; line-height: 1.7; }
+.waline-wrap input, .waline-wrap textarea { border: 2px solid var(--ink) !important; border-radius: 0 !important; color: var(--ink) !important; background: var(--paper) !important; font-family: 'Space Grotesk', sans-serif !important; }
+.waline-wrap .wl-btn.primary { border-radius: 0 !important; color: var(--ink) !important; background: var(--orange) !important; box-shadow: 2px 2px 0 var(--ink); }
+.waline-wrap .wl-btn.primary:hover { color: var(--ink) !important; background: var(--yellow) !important; }
+.waline-wrap .wl-btn.secondary { border-radius: 0 !important; }
+.waline-wrap .wl-btn { border-radius: 0 !important; }
+.waline-wrap .wl-panel, .waline-wrap .wl-card, .waline-wrap .wl-editor { border-radius: 0 !important; background: var(--paper-light); }
+.waline-wrap .wl-header { border-bottom: 1px solid var(--line); }
+.waline-wrap .wl-meta { color: var(--muted); }
+.waline-wrap .wl-count { color: var(--muted); font: 9px 'DM Mono', monospace; }
+.waline-wrap a { color: var(--orange); }
+.waline-wrap .wl-power { color: var(--muted); font: 9px 'DM Mono', monospace; }
+
+@media (max-width: 720px) {
+  .waline-wrap { margin-top: 44px; padding: 16px; }
+  .waline-head { display: block; }
+  .waline-head-note { display: block; margin-top: 10px; }
+  .article-view { margin-top: 14px; }
 }
 @media (max-width: 720px) { .menu-toggle { top: 12px; left: 12px; } .site-shell { width: min(100% - 32px, 1160px); } .site-header { min-height: 70px; padding-left: 75px; } .site-nav { gap: 4px; } .site-nav a { padding: 7px 8px; } .hero { display: block; padding: 76px 0 62px; } .hero::after { top: 24px; } .device-card { width: min(220px, 70%); margin: 48px 0 0 auto; } .post-list { grid-template-columns: 1fr; } .article { padding: 65px 0 360px; } .site-footer { display: block; line-height: 2; padding-bottom: 330px; } .footer-links { margin-top: 8px; } .music-player { right: 16px; bottom: 16px; width: calc(100% - 32px); } }

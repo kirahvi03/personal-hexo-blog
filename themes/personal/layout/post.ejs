@@ -1,7 +1,19 @@
+<%
+  var postWalineReady = String((theme.waline && theme.waline.serverURL) || '').trim().length > 0;
+  var postPath = '/' + page.path;
+  var articleCategories = page.categories && (page.categories.data || page.categories);
+  var isNote = !!(articleCategories && articleCategories.some(function (category) { return String(category.name || category).toLowerCase() === 'notes'; }));
+  var commentsOn = (isNote && page.comments !== false && page.comments !== 'false');
+%>
 <article class="article">
-  <header class="article-header"><p class="eyebrow">TRANSMISSION / <%= date(page.date, 'YYYY.MM.DD') %></p><h1><%= page.title %></h1></header>
+  <header class="article-header">
+    <p class="eyebrow">TRANSMISSION / <%= date(page.date, 'YYYY.MM.DD') %></p>
+    <h1><%= page.title %></h1>
+    <% if (postWalineReady) { %><p class="article-view">浏览 <span class="waline-pageview-count" data-path="<%= postPath %>">—</span> 次</p><% } %>
+  </header>
   <% if (page.media_type === 'model' && page.media_url) { %>
     <%- partial('_partial/model-preview', { modelUrl: page.media_url, modelTitle: page.title, modelSize: 'large' }) %>
   <% } %>
   <div class="article-content"><%- page.content %></div>
 </article>
+<% if (commentsOn) { %><%- partial('_partial/comments') %><% } %>

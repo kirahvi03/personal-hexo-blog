@@ -7,7 +7,7 @@ language: zh-CN
 timezone: Asia/Shanghai
 
 url: https://kirahvi03.github.io/personal-hexo-blog
-root: /personal-hexo-blog/
+root: /personal-hexo-blog
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
