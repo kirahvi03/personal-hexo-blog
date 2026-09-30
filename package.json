@@ -13,6 +13,7 @@
     "build": "hexo clean && hexo generate"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.4.1",
     "hexo": "^7.3.0",
     "hexo-cli": "^4.3.2",
     "hexo-generator-archive": "^2.0.0",
