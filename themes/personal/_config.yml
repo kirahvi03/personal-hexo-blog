@@ -4,7 +4,7 @@
 
 social:
   GitHub: https://github.com/kirahvi03
-  邮箱: mailto:hello@example.com
+  邮箱: 13520083163@163.com
 
 # 顶部导航栏的 Follow 按钮：点击直接跳转到你的 GitHub 主页
 # 把下面的地址改成你自己的 GitHub 主页地址即可
@@ -22,7 +22,7 @@ accent: '#176b5b'
 # ============================================================
 waline:
   # 例如 https://my-blog-comment.vercel.app  （结尾不要带 /）
-  serverURL: ''
+  serverURL: 'https://personal-hexo-blog.vercel.app'
   # 评论框和评论列表的界面语言
   lang: zh-CN
   # 评论者昵称、邮箱必填（邮箱不会公开显示）
