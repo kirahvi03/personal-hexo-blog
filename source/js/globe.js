@@ -3,21 +3,112 @@
   var canvas = document.querySelector('[data-globe-canvas]');
   var stage = document.querySelector('[data-globe-stage]');
   var tooltip = document.querySelector('[data-globe-tooltip]');
-  if (!canvas || !stage) return;
-  var ctx = canvas.getContext('2d');
-  var node = document.getElementById('globe-data');
+  var dataNode = document.getElementById('globe-data');
+  if (!canvas || !stage || !dataNode) return;
   var entries = [];
-  try { entries = JSON.parse(node.textContent || '[]'); } catch (error) { entries = []; }
-  var rotation = -18, tilt = 16, dragging = false, lastX = 0, lastY = 0, points = [];
-  var land = [[[-168,72],[-140,70],[-125,56],[-105,50],[-95,30],[-82,25],[-80,10],[-105,15],[-120,30],[-145,45]],[[-78,12],[-55,8],[-48,-8],[-58,-30],[-68,-55],[-78,-35],[-72,-10]],[[-10,36],[8,58],[38,68],[75,62],[116,54],[145,48],[155,30],[125,20],[98,8],[65,25],[35,35],[15,28]],[[-18,32],[10,36],[30,20],[42,-5],[28,-35],[12,-35],[-2,-10],[-18,8]],[[112,-12],[150,-8],[160,-30],[135,-42],[115,-30]]];
-  function resize() { var rect = stage.getBoundingClientRect(), ratio = window.devicePixelRatio || 1; canvas.width = Math.max(1, rect.width * ratio); canvas.height = Math.max(1, rect.height * ratio); canvas.style.width = rect.width + 'px'; canvas.style.height = rect.height + 'px'; ctx.setTransform(ratio,0,0,ratio,0,0); draw(); }
-  function project(lng, lat) { var rect = stage.getBoundingClientRect(), r = Math.min(rect.width, rect.height) * .36, lon = (lng + rotation) * Math.PI / 180, la = (lat + tilt) * Math.PI / 180, z = Math.cos(la) * Math.cos(lon); return { x: rect.width/2 + Math.cos(la)*Math.sin(lon)*r, y: rect.height/2 - Math.sin(la)*r, z: z, visible: z > -.04 }; }
-  function drawLine(coords) { var started = false; ctx.beginPath(); coords.forEach(function (pair) { var p = project(pair[0], pair[1]); if (!p.visible) { started = false; return; } if (!started) { ctx.moveTo(p.x,p.y); started = true; } else ctx.lineTo(p.x,p.y); }); ctx.closePath(); ctx.fillStyle = 'rgba(41,138,106,.42)'; ctx.strokeStyle = 'rgba(130,255,207,.55)'; ctx.lineWidth = 1; ctx.fill(); ctx.stroke(); }
-  function draw() { var rect = stage.getBoundingClientRect(); if (!rect.width || !rect.height) return; ctx.clearRect(0,0,rect.width,rect.height); var r = Math.min(rect.width,rect.height)*.36, cx = rect.width/2, cy = rect.height/2; ctx.fillStyle = '#07110f'; ctx.fillRect(0,0,rect.width,rect.height); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle = '#06100e'; ctx.fill(); ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip(); ctx.strokeStyle = 'rgba(92,228,183,.22)'; ctx.lineWidth = 1; for (var lat=-60;lat<=60;lat+=30) { ctx.beginPath(); for (var lng=-180;lng<=180;lng+=4) { var p=project(lng,lat); if(lng===-180)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y); } ctx.stroke(); } for (var lon=-150;lon<=180;lon+=30) { ctx.beginPath(); for (var latitude=-90;latitude<=90;latitude+=4) { var q=project(lon,latitude); if(latitude===-90)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y); } ctx.stroke(); } land.forEach(drawLine); points=[]; entries.forEach(function(entry,index){var point=project(entry.lng,entry.lat);point.entry=entry;point.index=index;points.push(point);if(!point.visible)return;ctx.beginPath();ctx.arc(point.x,point.y,4.5,0,Math.PI*2);ctx.fillStyle='#f6c453';ctx.shadowColor='#f6c453';ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#07110f';ctx.lineWidth=2;ctx.stroke();}); ctx.restore(); ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#8affd0';ctx.lineWidth=2;ctx.stroke(); }
-  function nearest(x,y){var best=null,distance=18;points.forEach(function(point){var d=Math.hypot(point.x-x,point.y-y);if(point.visible&&d<distance){distance=d;best=point;}});return best;}
-  function showPoint(point){if(!point||!point.visible){tooltip.hidden=true;return;}tooltip.innerHTML='<strong>'+point.entry.title+'</strong><span>'+point.entry.label+' / '+point.entry.date+'</span>';tooltip.style.left=Math.min(point.x+12,stage.clientWidth-190)+'px';tooltip.style.top=Math.max(point.y-48,8)+'px';tooltip.hidden=false;}
-  function position(event){var rect=canvas.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top};}
-  stage.addEventListener('pointerdown',function(event){dragging=true;lastX=event.clientX;lastY=event.clientY;stage.setPointerCapture(event.pointerId);stage.classList.add('is-orbiting');});
-  stage.addEventListener('pointermove',function(event){var pos=position(event);if(dragging){rotation+=(event.clientX-lastX)*.45;tilt=Math.max(-65,Math.min(65,tilt-(event.clientY-lastY)*.25));lastX=event.clientX;lastY=event.clientY;draw();tooltip.hidden=true;}else showPoint(nearest(pos.x,pos.y));});
-  stage.addEventListener('pointerup',function(){dragging=false;stage.classList.remove('is-orbiting');}); stage.addEventListener('pointerleave',function(){if(!dragging)tooltip.hidden=true;}); window.addEventListener('resize',resize); resize();
+  try { entries = JSON.parse(dataNode.textContent || '[]'); } catch (error) { entries = []; }
+  var markers = entries.map(function (entry) { return { location: [entry.lat, entry.lng], size: 0.07, color: [0.96, 0.77, 0.33], entry: entry }; });
+  var globe = null;
+  var phi = 0.15;
+  var theta = 0.18;
+  var pointer = { down: false, x: 0, y: 0, moved: false };
+  var radius = 0;
+  var cobeUrl = 'https://cdn.jsdelivr.net/npm/cobe@2.0.1/+esm';
+
+  function resize() {
+    var rect = stage.getBoundingClientRect();
+    radius = Math.min(rect.width, rect.height) * 0.36;
+    if (globe) globe.update({ width: rect.width * 2, height: rect.height * 2 });
+    positionMarkers();
+  }
+  function project(location) {
+    var lng = location[1] * Math.PI / 180;
+    var lat = location[0] * Math.PI / 180;
+    var x = -Math.cos(lng) * Math.sin(lat - Math.PI / 2);
+    var y = Math.sin(lng);
+    var z = Math.cos(lng) * Math.cos(lat - Math.PI / 2);
+    var cosPhi = Math.cos(phi);
+    var sinPhi = Math.sin(phi);
+    var cosTheta = Math.cos(theta);
+    var sinTheta = Math.sin(theta);
+    var rotatedX = cosPhi * x + sinPhi * z;
+    var rotatedY = sinTheta * sinPhi * x + cosTheta * y - cosPhi * sinTheta * z;
+    var rotatedZ = -sinTheta * cosPhi * x + sinPhi * y + cosTheta * cosPhi * z;
+    return { x: stage.clientWidth / 2 + rotatedX * radius, y: stage.clientHeight / 2 - rotatedY * radius, visible: rotatedZ > 0 };
+  }
+  function positionMarkers() {
+    markers.forEach(function (marker) {
+      if (!marker.node) return;
+      var point = project(marker.location);
+      marker.node.style.transform = 'translate3d(' + point.x + 'px,' + point.y + 'px,0)';
+      marker.node.classList.toggle('is-hidden', !point.visible);
+    });
+  }
+  function showTooltip(marker) {
+    var point = project(marker.location);
+    if (!point.visible) { tooltip.hidden = true; return; }
+    tooltip.innerHTML = '<strong>' + marker.entry.title + '</strong><span>' + marker.entry.label + ' / ' + marker.entry.date + '</span>';
+    tooltip.style.left = Math.min(point.x + 13, stage.clientWidth - 190) + 'px';
+    tooltip.style.top = Math.max(point.y - 48, 8) + 'px';
+    tooltip.hidden = false;
+  }
+  function mountMarkers() {
+    markers.forEach(function (marker) {
+      var link = document.createElement('a');
+      link.className = 'globe-marker';
+      link.href = marker.entry.url;
+      link.title = marker.entry.title + ' / ' + marker.entry.date;
+      link.setAttribute('aria-label', marker.entry.title + '，' + marker.entry.label + '，' + marker.entry.date);
+      link.innerHTML = '<span></span>';
+      link.addEventListener('pointerenter', function () { showTooltip(marker); });
+      link.addEventListener('pointerleave', function () { tooltip.hidden = true; });
+      marker.node = link;
+      stage.appendChild(link);
+    });
+    positionMarkers();
+  }
+  function bindList() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-signal-index]'), function (row) {
+      var marker = markers[Number(row.getAttribute('data-signal-index'))];
+      if (!marker) return;
+      row.addEventListener('mouseenter', function () { showTooltip(marker); });
+      row.addEventListener('mouseleave', function () { tooltip.hidden = true; });
+    });
+  }
+  function mountCobe() {
+    import(/* webpackIgnore: true */ cobeUrl).then(function (module) {
+      var createGlobe = module.default || module;
+      globe = createGlobe(canvas, {
+        devicePixelRatio: 2,
+        width: stage.clientWidth * 2,
+        height: stage.clientHeight * 2,
+        phi: phi,
+        theta: theta,
+        dark: 1,
+        diffuse: 1.2,
+        mapSamples: 12000,
+        mapBrightness: 3.2,
+        mapBaseBrightness: 0.035,
+        baseColor: [0.08, 0.45, 0.3],
+        markerColor: [0.96, 0.77, 0.33],
+        glowColor: [0.1, 0.75, 0.5],
+        markers: markers,
+        onRender: function (state) {
+          if (!pointer.down) state.phi += 0.0016;
+          phi = state.phi;
+          theta = state.theta;
+          positionMarkers();
+        }
+      });
+    }).catch(function () {
+      stage.classList.add('is-globe-fallback');
+      tooltip.hidden = true;
+    });
+  }
+  stage.addEventListener('pointerdown', function (event) { pointer.down = true; pointer.moved = false; pointer.x = event.clientX; pointer.y = event.clientY; stage.setPointerCapture(event.pointerId); stage.classList.add('is-orbiting'); });
+  stage.addEventListener('pointermove', function (event) { if (!pointer.down || !globe) return; var dx = event.clientX - pointer.x; var dy = event.clientY - pointer.y; if (Math.abs(dx) + Math.abs(dy) > 2) pointer.moved = true; phi += dx * 0.008; theta = Math.max(-0.7, Math.min(0.7, theta + dy * 0.004)); pointer.x = event.clientX; pointer.y = event.clientY; globe.update({ phi: phi, theta: theta }); positionMarkers(); });
+  function release() { pointer.down = false; stage.classList.remove('is-orbiting'); }
+  stage.addEventListener('pointerup', release); stage.addEventListener('pointercancel', release); stage.addEventListener('pointerleave', function () { if (!pointer.down) tooltip.hidden = true; });
+  window.addEventListener('resize', resize);
+  mountMarkers(); bindList(); resize(); mountCobe();
 }());
