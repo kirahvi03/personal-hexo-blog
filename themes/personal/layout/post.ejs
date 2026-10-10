@@ -10,6 +10,7 @@
     <p class="eyebrow">TRANSMISSION / <%= date(page.date, 'YYYY.MM.DD') %></p>
     <h1><%= page.title %></h1>
     <% if (postWalineReady) { %><p class="article-view">浏览 <span class="waline-pageview-count" data-path="<%= postPath %>">—</span> 次</p><% } %>
+    <% if (page.location && page.location.label) { %><p class="article-location">⌖ <%= page.location.label %></p><% } %>
   </header>
   <% if (page.media_type === 'model' && page.media_url) { %>
     <%- partial('_partial/model-preview', { modelUrl: page.media_url, modelTitle: page.title, modelSize: 'large' }) %>

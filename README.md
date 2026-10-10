@@ -31,3 +31,16 @@ npm run build
 ```
 
 生成结果位于 `public/` 目录。
+
+## 给札记添加地理位置
+
+在文章的 front-matter 中加入 `location`，主页的 Earth / Signal Map 会自动显示该文章的位置标记。`lat` 是纬度，`lng` 是经度，`label` 是悬停时显示的地点名称：
+
+```yaml
+location:
+  label: Shanghai / CN
+  lat: 31.2304
+  lng: 121.4737
+```
+
+位置字段同样适用于带图片的文章；文章的 `media_type` 可以继续使用 `image`，地球会显示文章标题、日期和地点。

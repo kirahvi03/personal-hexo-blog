@@ -1,40 +1,24 @@
-<div class="hero">
-  <div>
-    <p class="eyebrow">PERSONAL NOTES / CHANNEL 01</p>
-    <h1>Hello, I am<br><span><%= config.author %></span>.</h1>
-    <p class="hero-copy"><%= config.subtitle %>. A small archive of ideas, projects, and observations.</p>
+<%
+  var latestPosts = site.posts.sort('date', -1).limit(6);
+  var indexWalineReady = String((theme.waline && theme.waline.serverURL) || '').trim().length > 0;
+  var geoEntries = [];
+  site.posts.forEach(function (post) {
+    var location = post.location;
+    if (!location || location.lat === undefined || location.lng === undefined) return;
+    geoEntries.push({ title: String(post.title || 'UNTITLED'), date: date(post.date, 'YYYY.MM.DD'), label: String(location.label || location.name || 'UNNAMED NODE'), lat: Number(location.lat), lng: Number(location.lng), type: String(post.media_type || 'note').toUpperCase(), url: url_for(post.path) });
+  });
+%>
+<section class="crt-home" aria-label="SSY signal archive">
+  <div class="crt-home-noise" aria-hidden="true"></div>
+  <div class="crt-topline"><span>SSY // PERSONAL SIGNAL ARCHIVE</span><span>SYS.STATUS: <b>ONLINE</b></span></div>
+  <div class="crt-hero-grid">
+    <div class="crt-hero-copy"><p class="eyebrow">CHANNEL 01 / CRT TRANSMISSION</p><h1>HELLO,<br><em>I AM</em><br><strong>S S Y</strong></h1><p class="crt-lede">A hand-built archive for notes, images, sound and unfinished signals.</p><div class="crt-readout"><span>UPTIME</span><b>2026—NOW</b><span>MODE</span><b>ANALOG / DIGITAL</b></div></div>
+    <div class="crt-monitor" data-crt-monitor><div class="crt-monitor-bezel"><div class="crt-monitor-head"><span>MONITOR // 01</span><span class="crt-rec"><i></i> REC</span></div><div class="crt-screen"><div class="crt-screen-grid"></div><div class="crt-screen-copy"><span>BOOT SEQUENCE</span><strong>ARCHIVE<br>READY</strong><small>DRAG THE EARTH / FIND A SIGNAL</small></div><div class="crt-crosshair" aria-hidden="true"></div></div><div class="crt-monitor-foot"><span>HZ 60.00</span><span>CONNECTION: STABLE</span></div></div></div>
   </div>
-  <div class="device-card" data-pet-station aria-label="System status">
-    <div class="device-card-top"><span>UNIT / 01</span><span>FM—BLOG</span></div>
-    <div class="device-card-title">ON<br>AIR</div>
-    <div class="device-card-footer"><span><i class="led"></i>TRANSMIT</span><span>2026—NOW</span></div>
-    <div class="device-card-hover" aria-hidden="true"><span>DESKTOP PET</span><strong>CLICK TO SUMMON</strong><small>HOLD / DRAG / CLICK</small></div>
-  </div>
-</div>
-<% var latestPosts = site.posts.sort('date', -1).limit(6); %>
-<% var indexWalineReady = String((theme.waline && theme.waline.serverURL) || '').trim().length > 0; %>
-<section class="posts-section" aria-label="Latest posts">
-  <div class="section-heading"><h2>Latest posts</h2><span><%= latestPosts.length %> posts</span></div>
-  <% if (!latestPosts.length) { %>
-    <div class="empty-state">
-      <div class="empty-icon">&#10022;</div>
-      <h3>It is quiet here for now</h3>
-      <p>Your first post is on its way. Run <code>hexo new post "Your title"</code> to start writing.</p>
-    </div>
-  <% } else { %>
-    <div class="post-list">
-      <% latestPosts.forEach(function (post, index) { %>
-        <article class="post-card">
-          <span class="post-card-index"><%= String(index + 1).padStart(2, '0') %></span>
-          <div class="post-card-body">
-            <p class="eyebrow"><%= date(post.date, 'YYYY.MM.DD') %></p>
-            <h3><a href="<%= url_for(post.path) %>"><%= post.title %></a></h3>
-            <p><%= strip_html(post.excerpt || post.content).slice(0, 180) %></p>
-            <% if (indexWalineReady) { %><p class="post-card-view">浏览 <span class="waline-pageview-count" data-path="/<%= post.path %>">—</span> 次</p><% } %>
-          </div>
-          <a class="post-card-arrow" href="<%= url_for(post.path) %>" aria-label="Open <%= post.title %>">&#8599;</a>
-        </article>
-      <% }); %>
-    </div>
-  <% } %>
+  <div class="crt-dashboard"><div class="crt-dashboard-label"><span>LIVE CARTOGRAPHY / FIELD NOTES</span><span><%= String(geoEntries.length).padStart(2, '0') %> NODES</span></div><div class="crt-dashboard-grid">
+    <section class="globe-console" aria-label="Interactive archive globe"><div class="globe-console-head"><div><p class="eyebrow">ORBITAL INDEX</p><h2>EARTH / SIGNAL MAP</h2></div><span>HOLD + DRAG TO ROTATE</span></div><div class="globe-stage" data-globe-stage tabindex="0" aria-label="可拖动的札记位置地球"><canvas data-globe-canvas></canvas><div class="globe-tooltip" data-globe-tooltip hidden></div><div class="globe-empty" data-globe-empty <%= geoEntries.length ? 'hidden' : '' %>>NO LOCATION DATA<br><small>Add location to a post front-matter</small></div></div><div class="globe-console-foot"><span>LAT <b data-globe-lat>000.0</b></span><span>LNG <b data-globe-lng>000.0</b></span><span>ZOOM <b>1.00X</b></span></div></section>
+    <aside class="signal-list" aria-label="Archive location list"><div class="signal-list-head"><span>FIELD SIGNALS</span><span>HOVER TO INSPECT</span></div><% if (geoEntries.length) { %><% geoEntries.forEach(function (entry, index) { %><a class="signal-row" href="<%= entry.url %>" data-signal-index="<%= index %>"><span class="signal-row-no"><%= String(index + 1).padStart(2, '0') %></span><span class="signal-row-copy"><strong><%= entry.title %></strong><small><%= entry.label %> / <%= entry.date %></small></span><span class="signal-row-type"><%= entry.type %></span></a><% }); %><% } else { %><p class="signal-list-empty">No mapped signals yet.<br>Use <code>location</code> in a post.</p><% } %></aside>
+  </div></div>
 </section>
+<section class="posts-section crt-posts-section" aria-label="Latest posts"><div class="section-heading"><h2>Latest transmissions</h2><span><%= latestPosts.length %> posts</span></div><% if (!latestPosts.length) { %><div class="empty-state"><div class="empty-icon">&#10022;</div><h3>It is quiet here for now</h3><p>Your first post is on its way.</p></div><% } else { %><div class="post-list"><% latestPosts.forEach(function (post, index) { %><article class="post-card"><span class="post-card-index"><%= String(index + 1).padStart(2, '0') %></span><div class="post-card-body"><p class="eyebrow"><%= date(post.date, 'YYYY.MM.DD') %></p><h3><a href="<%= url_for(post.path) %>"><%= post.title %></a></h3><p><%= strip_html(post.excerpt || post.content).slice(0, 180) %></p><% if (indexWalineReady) { %><p class="post-card-view">浏览 <span class="waline-pageview-count" data-path="/<%= post.path %>">—</span> 次</p><% } %></div><a class="post-card-arrow" href="<%= url_for(post.path) %>" aria-label="Open <%= post.title %>">&#8599;</a></article><% }); %></div><% } %></section>
+<script type="application/json" id="globe-data"><%- JSON.stringify(geoEntries) %></script>
