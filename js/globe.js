@@ -16,6 +16,7 @@
   var radius = 0;
   var cobeUrl = 'https://cdn.jsdelivr.net/npm/cobe@2.0.1/+esm';
   var spinSpeed = 0.00075;
+  var ssyLocation = { lat: 39.9042, lng: 116.4074, city: '北京' };
 
   function resize() {
     var rect = stage.getBoundingClientRect();
@@ -96,6 +97,30 @@
     node.textContent = text;
     node.classList.toggle('is-ready', !!ready);
   }
+  function setVisitorDistance(text) {
+    var node = document.querySelector('[data-visitor-distance]');
+    if (node) node.textContent = text;
+  }
+  function setVisitorCard(text) {
+    var node = document.querySelector('[data-visitor-card]');
+    if (node) node.textContent = text;
+  }
+  function toRad(value) { return value * Math.PI / 180; }
+  function getDistance(lat1, lng1, lat2, lng2) {
+    var earthRadius = 6371;
+    var dLat = toRad(lat2 - lat1);
+    var dLng = toRad(lng2 - lng1);
+    var a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.pow(Math.sin(dLng / 2), 2);
+    return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  function refreshVisitorDistance() {
+    if (!visitorMarker) return;
+    var distance = Math.round(getDistance(ssyLocation.lat, ssyLocation.lng, visitorMarker.location[0], visitorMarker.location[1]));
+    var zh = '你在 ' + visitorMarker.city + '，距离 SSY（北京）约 ' + distance + ' 公里';
+    var en = 'You are in ' + visitorMarker.city + ', approx. ' + distance + ' km from SSY (Beijing)';
+    setVisitorDistance(window.SSYI18n ? window.SSYI18n.t(zh, en) : en);
+    setVisitorCard(window.SSYI18n ? window.SSYI18n.t(visitorMarker.city + ' / ' + distance + ' KM', visitorMarker.city + ' / ' + distance + ' KM') : visitorMarker.city + ' / ' + distance + ' KM');
+  }
   function refreshVisitorStatus() {
     if (!visitorMarker) return;
     var prefix = window.SSYI18n ? window.SSYI18n.t('访客：大致位置 ', 'VISITOR: APPROX. ') : 'VISITOR: APPROX. ';
@@ -116,11 +141,13 @@
       size: 0.1,
       color: [1, 0.45, 0.36],
       visitor: true,
+      city: city || (typeof data.region === 'string' ? data.region.trim() : '') || '未知地区',
       label: [city, country].filter(Boolean).join(' / ') || 'undisclosed area'
     };
     mountVisitorMarker();
     updateGlobeMarkers();
     refreshVisitorStatus();
+    refreshVisitorDistance();
   }
   function locateVisitor() {
     setVisitorStatus(window.SSYI18n ? window.SSYI18n.t('访客：定位中…', 'VISITOR: LOCATING…') : 'VISITOR: LOCATING…');
@@ -178,5 +205,6 @@
   stage.addEventListener('pointerup', release); stage.addEventListener('pointercancel', release); stage.addEventListener('pointerleave', function () { if (!pointer.down) tooltip.hidden = true; });
   window.addEventListener('resize', resize);
   document.addEventListener('ssy-language-change', refreshVisitorStatus);
+  document.addEventListener('ssy-language-change', refreshVisitorDistance);
   mountMarkers(); bindList(); resize(); mountCobe(); locateVisitor();
 }());
