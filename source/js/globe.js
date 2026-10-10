@@ -8,12 +8,14 @@
   var entries = [];
   try { entries = JSON.parse(dataNode.textContent || '[]'); } catch (error) { entries = []; }
   var markers = entries.map(function (entry) { return { location: [entry.lat, entry.lng], size: 0.07, color: [0.96, 0.77, 0.33], entry: entry }; });
+  var visitorMarker = null;
   var globe = null;
   var phi = 0.15;
   var theta = 0.18;
   var pointer = { down: false, x: 0, y: 0, moved: false };
   var radius = 0;
   var cobeUrl = 'https://cdn.jsdelivr.net/npm/cobe@2.0.1/+esm';
+  var spinSpeed = 0.00075;
 
   function resize() {
     var rect = stage.getBoundingClientRect();
@@ -37,7 +39,7 @@
     return { x: stage.clientWidth / 2 + rotatedX * radius, y: stage.clientHeight / 2 - rotatedY * radius, visible: rotatedZ > 0 };
   }
   function positionMarkers() {
-    markers.forEach(function (marker) {
+    markers.concat(visitorMarker ? [visitorMarker] : []).forEach(function (marker) {
       if (!marker.node) return;
       var point = project(marker.location);
       marker.node.style.transform = 'translate3d(' + point.x + 'px,' + point.y + 'px,0)';
@@ -47,7 +49,13 @@
   function showTooltip(marker) {
     var point = project(marker.location);
     if (!point.visible) { tooltip.hidden = true; return; }
-    tooltip.innerHTML = '<strong>' + marker.entry.title + '</strong><span>' + marker.entry.label + ' / ' + marker.entry.date + '</span>';
+    tooltip.replaceChildren();
+    var title = document.createElement('strong');
+    var detail = document.createElement('span');
+    title.textContent = marker.visitor ? (window.SSYI18n ? window.SSYI18n.t('当前访客', 'CURRENT VISITOR') : 'CURRENT VISITOR') : marker.entry.title;
+    detail.textContent = marker.visitor ? (window.SSYI18n ? window.SSYI18n.t('大致位置：' + marker.label, 'Approx. ' + marker.label) : 'Approx. ' + marker.label) : marker.entry.label + ' / ' + marker.entry.date;
+    tooltip.appendChild(title);
+    tooltip.appendChild(detail);
     tooltip.style.left = Math.min(point.x + 13, stage.clientWidth - 190) + 'px';
     tooltip.style.top = Math.max(point.y - 48, 8) + 'px';
     tooltip.hidden = false;
@@ -66,6 +74,65 @@
       stage.appendChild(link);
     });
     positionMarkers();
+  }
+  function mountVisitorMarker() {
+    if (!visitorMarker) return;
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'globe-marker globe-marker-visitor';
+    button.title = 'Current visitor location (approximate)';
+    button.setAttribute('aria-label', 'Current visitor location, approximate');
+    button.innerHTML = '<span></span>';
+    button.addEventListener('pointerenter', function () { showTooltip(visitorMarker); });
+    button.addEventListener('pointerleave', function () { tooltip.hidden = true; });
+    button.addEventListener('click', function (event) { event.stopPropagation(); });
+    visitorMarker.node = button;
+    stage.appendChild(button);
+    positionMarkers();
+  }
+  function setVisitorStatus(text, ready) {
+    var node = document.querySelector('[data-visitor-status]');
+    if (!node) return;
+    node.textContent = text;
+    node.classList.toggle('is-ready', !!ready);
+  }
+  function refreshVisitorStatus() {
+    if (!visitorMarker) return;
+    var prefix = window.SSYI18n ? window.SSYI18n.t('访客：大致位置 ', 'VISITOR: APPROX. ') : 'VISITOR: APPROX. ';
+    setVisitorStatus(prefix + visitorMarker.label.toUpperCase(), true);
+  }
+  function updateGlobeMarkers() {
+    if (globe) globe.update({ markers: markers.concat(visitorMarker ? [visitorMarker] : []) });
+    positionMarkers();
+  }
+  function addVisitorLocation(data) {
+    var lat = Number(data.latitude);
+    var lng = Number(data.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) throw new Error('Invalid location');
+    var city = typeof data.city === 'string' ? data.city.trim() : '';
+    var country = typeof data.country === 'string' ? data.country.trim() : '';
+    visitorMarker = {
+      location: [lat, lng],
+      size: 0.1,
+      color: [1, 0.45, 0.36],
+      visitor: true,
+      label: [city, country].filter(Boolean).join(' / ') || 'undisclosed area'
+    };
+    mountVisitorMarker();
+    updateGlobeMarkers();
+    refreshVisitorStatus();
+  }
+  function locateVisitor() {
+    setVisitorStatus(window.SSYI18n ? window.SSYI18n.t('访客：定位中…', 'VISITOR: LOCATING…') : 'VISITOR: LOCATING…');
+    fetch('https://ipwho.is/', { headers: { Accept: 'application/json' } })
+      .then(function (response) { if (!response.ok) throw new Error('Location service unavailable'); return response.json(); })
+      .then(function (data) { if (data && data.success === false) throw new Error('Location unavailable'); addVisitorLocation(data); })
+      .catch(function () {
+        return fetch('https://ipapi.co/json/', { headers: { Accept: 'application/json' } })
+          .then(function (response) { if (!response.ok) throw new Error('Location service unavailable'); return response.json(); })
+          .then(addVisitorLocation);
+      })
+      .catch(function () { setVisitorStatus(window.SSYI18n ? window.SSYI18n.t('访客：不可用', 'VISITOR: UNAVAILABLE') : 'VISITOR: UNAVAILABLE'); });
   }
   function bindList() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-signal-index]'), function (row) {
@@ -92,9 +159,9 @@
         baseColor: [0.08, 0.45, 0.3],
         markerColor: [0.96, 0.77, 0.33],
         glowColor: [0.1, 0.75, 0.5],
-        markers: markers,
+        markers: markers.concat(visitorMarker ? [visitorMarker] : []),
         onRender: function (state) {
-          if (!pointer.down) state.phi += 0.0016;
+          if (!pointer.down) state.phi += spinSpeed;
           phi = state.phi;
           theta = state.theta;
           positionMarkers();
@@ -110,5 +177,6 @@
   function release() { pointer.down = false; stage.classList.remove('is-orbiting'); }
   stage.addEventListener('pointerup', release); stage.addEventListener('pointercancel', release); stage.addEventListener('pointerleave', function () { if (!pointer.down) tooltip.hidden = true; });
   window.addEventListener('resize', resize);
-  mountMarkers(); bindList(); resize(); mountCobe();
+  document.addEventListener('ssy-language-change', refreshVisitorStatus);
+  mountMarkers(); bindList(); resize(); mountCobe(); locateVisitor();
 }());

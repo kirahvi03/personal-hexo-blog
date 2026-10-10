@@ -32,6 +32,7 @@
         <button class="site-search-trigger" type="button" data-search-toggle aria-expanded="false">Search</button>
         <% if (followUrl) { %><a class="site-nav-follow" href="<%= followUrl %>" target="_blank" rel="noopener noreferrer" title="<%= followUrl %>"><span class="site-nav-follow-led"></span><%= followLabel %><span aria-hidden="true">↗</span></a><% } %>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon">☾</span><span data-theme-label>Dark</span></button>
+        <button class="language-toggle" type="button" data-language-toggle aria-pressed="false" aria-label="切换语言"><span data-language-label>中文 / En</span></button>
       </nav>
     </header>
     <%- partial('_partial/search-panel') %>
@@ -49,6 +50,7 @@
   <script src="<%= url_for('/js/music-player.js') %>"></script>
   <script src="<%= url_for('/js/sidebar-menu.js') %>"></script>
   <script src="<%= url_for('/js/theme-toggle.js') %>"></script>
+  <script src="<%= url_for('/js/language-toggle.js') %>"></script>
   <script src="<%= url_for('/js/globe.js') %>"></script>
 </body>
 </html>
