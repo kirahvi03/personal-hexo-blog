@@ -7,7 +7,18 @@
   if (!canvas || !stage || !dataNode) return;
   var entries = [];
   try { entries = JSON.parse(dataNode.textContent || '[]'); } catch (error) { entries = []; }
-  var markers = entries.map(function (entry) { return { location: [entry.lat, entry.lng], size: 0.07, color: [0.96, 0.77, 0.33], entry: entry }; });
+  var articleGroups = [];
+  entries.forEach(function (entry) {
+    var key = entry.lat.toFixed(4) + ':' + entry.lng.toFixed(4) + ':' + entry.label;
+    var group = articleGroups.filter(function (item) { return item.key === key; })[0];
+    if (!group) { group = { key: key, location: [entry.lat, entry.lng], label: entry.label, entries: [] }; articleGroups.push(group); }
+    group.entries.push(entry);
+  });
+  var markers = articleGroups.map(function (group) {
+    var marker = { location: group.location, size: 0.07, color: [0.96, 0.77, 0.33], group: group, article: true };
+    group.entries.forEach(function (entry) { entry.marker = marker; });
+    return marker;
+  });
   var visitorMarker = null;
   var globe = null;
   var phi = 0.15;
@@ -17,6 +28,8 @@
   var cobeUrl = 'https://cdn.jsdelivr.net/npm/cobe@2.0.1/+esm';
   var spinSpeed = 0.00075;
   var ssyLocation = { lat: 39.9042, lng: 116.4074, city: '北京' };
+  var ssyMarker = { location: [ssyLocation.lat, ssyLocation.lng], size: 0.12, color: [0.55, 1, 0.75], ssy: true };
+  function allMarkers() { return [ssyMarker].concat(markers, visitorMarker ? [visitorMarker] : []); }
 
   function resize() {
     var rect = stage.getBoundingClientRect();
@@ -40,7 +53,7 @@
     return { x: stage.clientWidth / 2 + rotatedX * radius, y: stage.clientHeight / 2 - rotatedY * radius, visible: rotatedZ > 0 };
   }
   function positionMarkers() {
-    markers.concat(visitorMarker ? [visitorMarker] : []).forEach(function (marker) {
+    allMarkers().forEach(function (marker) {
       if (!marker.node) return;
       var point = project(marker.location);
       marker.node.style.transform = 'translate3d(' + point.x + 'px,' + point.y + 'px,0)';
@@ -53,28 +66,57 @@
     tooltip.replaceChildren();
     var title = document.createElement('strong');
     var detail = document.createElement('span');
-    title.textContent = marker.visitor ? (window.SSYI18n ? window.SSYI18n.t('当前访客', 'CURRENT VISITOR') : 'CURRENT VISITOR') : marker.entry.title;
-    detail.textContent = marker.visitor ? (window.SSYI18n ? window.SSYI18n.t('大致位置：' + marker.label, 'Approx. ' + marker.label) : 'Approx. ' + marker.label) : marker.entry.label + ' / ' + marker.entry.date;
+    title.textContent = marker.ssy ? (window.SSYI18n ? window.SSYI18n.t('这里是 SSY', 'THIS IS SSY') : 'THIS IS SSY') : marker.visitor ? (window.SSYI18n ? window.SSYI18n.t('当前访客', 'CURRENT VISITOR') : 'CURRENT VISITOR') : marker.group.label;
     tooltip.appendChild(title);
-    tooltip.appendChild(detail);
+    if (marker.ssy) {
+      var ssyDetail = document.createElement('span');
+      ssyDetail.textContent = window.SSYI18n ? window.SSYI18n.t('北京 / SSY 信号源', 'Beijing / SSY signal source') : 'Beijing / SSY signal source';
+      tooltip.appendChild(ssyDetail);
+    } else if (marker.visitor) {
+      var visitorDetail = document.createElement('span');
+      visitorDetail.textContent = window.SSYI18n ? window.SSYI18n.t('大致位置：' + marker.label, 'Approx. ' + marker.label) : 'Approx. ' + marker.label;
+      tooltip.appendChild(visitorDetail);
+    } else {
+      var list = document.createElement('div');
+      list.className = 'globe-tooltip-list';
+      marker.group.entries.forEach(function (entry) {
+        var link = document.createElement('a');
+        link.href = entry.url;
+        link.innerHTML = '<strong></strong><small></small>';
+        link.querySelector('strong').textContent = entry.title;
+        link.querySelector('small').textContent = entry.date + ' / ' + entry.type;
+        list.appendChild(link);
+      });
+      tooltip.appendChild(list);
+    }
     tooltip.style.left = Math.min(point.x + 13, stage.clientWidth - 190) + 'px';
     tooltip.style.top = Math.max(point.y - 48, 8) + 'px';
     tooltip.hidden = false;
   }
   function mountMarkers() {
     markers.forEach(function (marker) {
-      var link = document.createElement('a');
-      link.className = 'globe-marker';
-      link.href = marker.entry.url;
-      link.title = marker.entry.title + ' / ' + marker.entry.date;
-      link.setAttribute('aria-label', marker.entry.title + '，' + marker.entry.label + '，' + marker.entry.date);
-      link.innerHTML = '<span></span>';
-      link.addEventListener('pointerenter', function () { showTooltip(marker); });
-      link.addEventListener('pointerleave', function () { tooltip.hidden = true; });
-      marker.node = link;
-      stage.appendChild(link);
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'globe-marker globe-marker-notes';
+      button.title = marker.group.label;
+      button.setAttribute('aria-label', marker.group.label + '，' + marker.group.entries.length + ' 篇札记');
+      button.innerHTML = '<span></span>';
+      bindMarker(marker, button);
     });
+    var home = document.createElement('button');
+    home.type = 'button';
+    home.className = 'globe-marker globe-marker-ssy';
+    home.title = 'SSY / Beijing';
+    home.setAttribute('aria-label', '这里是 SSY，北京');
+    home.innerHTML = '<span></span><i></i>';
+    bindMarker(ssyMarker, home);
     positionMarkers();
+  }
+  function bindMarker(marker, node) {
+    node.addEventListener('pointerenter', function () { showTooltip(marker); });
+    node.addEventListener('pointerleave', function () { window.setTimeout(function () { if (!tooltip.matches(':hover')) tooltip.hidden = true; }, 80); });
+    marker.node = node;
+    stage.appendChild(node);
   }
   function mountVisitorMarker() {
     if (!visitorMarker) return;
@@ -84,11 +126,8 @@
     button.title = 'Current visitor location (approximate)';
     button.setAttribute('aria-label', 'Current visitor location, approximate');
     button.innerHTML = '<span></span>';
-    button.addEventListener('pointerenter', function () { showTooltip(visitorMarker); });
-    button.addEventListener('pointerleave', function () { tooltip.hidden = true; });
     button.addEventListener('click', function (event) { event.stopPropagation(); });
-    visitorMarker.node = button;
-    stage.appendChild(button);
+    bindMarker(visitorMarker, button);
     positionMarkers();
   }
   function setVisitorStatus(text, ready) {
@@ -127,7 +166,7 @@
     setVisitorStatus(prefix + visitorMarker.label.toUpperCase(), true);
   }
   function updateGlobeMarkers() {
-    if (globe) globe.update({ markers: markers.concat(visitorMarker ? [visitorMarker] : []) });
+    if (globe) globe.update({ markers: allMarkers() });
     positionMarkers();
   }
   function addVisitorLocation(data) {
@@ -163,7 +202,8 @@
   }
   function bindList() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-signal-index]'), function (row) {
-      var marker = markers[Number(row.getAttribute('data-signal-index'))];
+      var entry = entries[Number(row.getAttribute('data-signal-index'))];
+      var marker = entry && entry.marker;
       if (!marker) return;
       row.addEventListener('mouseenter', function () { showTooltip(marker); });
       row.addEventListener('mouseleave', function () { tooltip.hidden = true; });
@@ -186,7 +226,7 @@
         baseColor: [0.08, 0.45, 0.3],
         markerColor: [0.96, 0.77, 0.33],
         glowColor: [0.1, 0.75, 0.5],
-        markers: markers.concat(visitorMarker ? [visitorMarker] : []),
+        markers: allMarkers(),
         onRender: function (state) {
           if (!pointer.down) state.phi += spinSpeed;
           phi = state.phi;
@@ -202,7 +242,10 @@
   stage.addEventListener('pointerdown', function (event) { pointer.down = true; pointer.moved = false; pointer.x = event.clientX; pointer.y = event.clientY; stage.setPointerCapture(event.pointerId); stage.classList.add('is-orbiting'); });
   stage.addEventListener('pointermove', function (event) { if (!pointer.down || !globe) return; var dx = event.clientX - pointer.x; var dy = event.clientY - pointer.y; if (Math.abs(dx) + Math.abs(dy) > 2) pointer.moved = true; phi += dx * 0.008; theta = Math.max(-0.7, Math.min(0.7, theta + dy * 0.004)); pointer.x = event.clientX; pointer.y = event.clientY; globe.update({ phi: phi, theta: theta }); positionMarkers(); });
   function release() { pointer.down = false; stage.classList.remove('is-orbiting'); }
-  stage.addEventListener('pointerup', release); stage.addEventListener('pointercancel', release); stage.addEventListener('pointerleave', function () { if (!pointer.down) tooltip.hidden = true; });
+  stage.addEventListener('pointerup', release); stage.addEventListener('pointercancel', release); stage.addEventListener('pointerleave', function () { if (!pointer.down && !tooltip.matches(':hover')) tooltip.hidden = true; });
+  tooltip.addEventListener('pointerenter', function () { });
+  tooltip.addEventListener('pointerleave', function () { tooltip.hidden = true; });
+  tooltip.addEventListener('pointerdown', function (event) { event.stopPropagation(); });
   window.addEventListener('resize', resize);
   document.addEventListener('ssy-language-change', refreshVisitorStatus);
   document.addEventListener('ssy-language-change', refreshVisitorDistance);
