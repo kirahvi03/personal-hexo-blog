@@ -2,8 +2,7 @@
   'use strict';
   var key = 'ssy-language';
   var root = document.documentElement;
-  var toggle = document.querySelector('[data-language-toggle]');
-  var label = document.querySelector('[data-language-label]');
+  var toggles = document.querySelectorAll('[data-language-toggle]');
   var translations = {
     'Index': '首页', '首页': 'Index', 'About': '关于', '关于': 'About', 'Search': '搜索', '搜索': 'Search',
     '札记': 'Notes', '图片库': 'Gallery', '音频库': 'Audio', '模型库': 'Models', '关闭菜单': 'Close menu',
@@ -42,18 +41,24 @@
   function setLanguage(lang) {
     root.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
     root.setAttribute('data-language', lang);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-zh][data-i18n-en]'), function (node) {
+      node.textContent = lang === 'zh' ? node.getAttribute('data-i18n-zh') : node.getAttribute('data-i18n-en');
+    });
     walk(document.body, lang);
-    if (toggle) toggle.setAttribute('aria-pressed', lang === 'zh' ? 'true' : 'false');
-    if (label) label.textContent = lang === 'zh' ? 'En / 中文' : '中文 / En';
+    Array.prototype.forEach.call(toggles, function (toggle) {
+      toggle.setAttribute('aria-pressed', lang === 'zh' ? 'true' : 'false');
+      var label = toggle.querySelector('[data-language-label]');
+      if (label) label.textContent = lang === 'zh' ? 'En / 中文' : '中文 / En';
+    });
     document.dispatchEvent(new CustomEvent('ssy-language-change', { detail: { language: lang } }));
   }
   var saved = null;
   try { saved = localStorage.getItem(key); } catch (error) { saved = null; }
   setLanguage(saved === 'en' ? 'en' : 'zh');
-  if (toggle) toggle.addEventListener('click', function () {
+  Array.prototype.forEach.call(toggles, function (toggle) { toggle.addEventListener('click', function () {
     var next = root.getAttribute('data-language') === 'zh' ? 'en' : 'zh';
     try { localStorage.setItem(key, next); } catch (error) { /* private mode */ }
     setLanguage(next);
-  });
+  }); });
   window.SSYI18n = { getLanguage: function () { return root.getAttribute('data-language') || 'zh'; }, t: function (zh, en) { return this.getLanguage() === 'zh' ? zh : en; } };
 }());
