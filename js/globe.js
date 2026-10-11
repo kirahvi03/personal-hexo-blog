@@ -29,13 +29,27 @@
   var spinSpeed = 0.00075;
   var ssyLocation = { lat: 39.9042, lng: 116.4074, city: '北京' };
   var ssyMarker = { location: [ssyLocation.lat, ssyLocation.lng], size: 0.12, color: [0.55, 1, 0.75], ssy: true };
+  var resizeFrame = 0;
+  var lastSize = { width: 0, height: 0 };
   function allMarkers() { return [ssyMarker].concat(markers, visitorMarker ? [visitorMarker] : []); }
 
   function resize() {
     var rect = stage.getBoundingClientRect();
-    radius = Math.min(rect.width, rect.height) * 0.36;
-    if (globe) globe.update({ width: rect.width * 2, height: rect.height * 2 });
+    var width = Math.max(1, Math.round(rect.width));
+    var height = Math.max(1, Math.round(rect.height));
+    radius = Math.min(width, height) * 0.36;
+    if (width !== lastSize.width || height !== lastSize.height) {
+      lastSize = { width: width, height: height };
+      if (globe) globe.update({ width: width * 2, height: height * 2 });
+    }
     positionMarkers();
+  }
+  function scheduleResize() {
+    if (resizeFrame) return;
+    resizeFrame = window.requestAnimationFrame(function () {
+      resizeFrame = 0;
+      resize();
+    });
   }
   function project(location) {
     var lng = location[1] * Math.PI / 180;
@@ -228,6 +242,7 @@
         glowColor: [0.1, 0.75, 0.5],
         markers: allMarkers(),
         onRender: function (state) {
+          // Positive phi advances the globe from west to east.
           if (!pointer.down) state.phi += spinSpeed;
           phi = state.phi;
           theta = state.theta;
@@ -247,6 +262,15 @@
   tooltip.addEventListener('pointerleave', function () { tooltip.hidden = true; });
   tooltip.addEventListener('pointerdown', function (event) { event.stopPropagation(); });
   window.addEventListener('resize', resize);
+  if (window.ResizeObserver) {
+    var observer = new ResizeObserver(scheduleResize);
+    observer.observe(stage);
+    var consolePanel = stage.closest('.globe-console');
+    if (consolePanel) observer.observe(consolePanel);
+  }
+  document.addEventListener('transitionend', function (event) {
+    if (event.propertyName === 'width' || event.propertyName === 'margin-left' || event.propertyName === 'padding') scheduleResize();
+  });
   document.addEventListener('ssy-language-change', refreshVisitorStatus);
   document.addEventListener('ssy-language-change', refreshVisitorDistance);
   mountMarkers(); bindList(); resize(); mountCobe(); locateVisitor();
